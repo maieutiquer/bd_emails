@@ -35,18 +35,19 @@ public class BdEmails {
 		
 		//Creating a variable for the connection called "con"
 		
-		showEmpty("bd_emails_4"); 
+		//showEmpty("bd_emails_5");
+		//showEmpty("bd_emails_4");
 		
 		//showColumnNames("bd_emails");
 		
 		//insertNonEmpty("bd_emails", "bd_emails_4");
-		//insertEmpty("bd_emails","empty_deleted");
+		insertEmpty("bd_emails_5","empty_deleted");
 		
 		//countEmptyFirstname("bd_emails_4");
 		//countEmptyLastname("bd_emails_4");
-		countEmptyEmail("bd_emails_4");
+		//countEmptyEmail("bd_emails_4");
 		//countAll("bd_emails");
-		//countAll("bd_emails_4");
+		//countAll("bd_emails_5");
 	}
 	
 	private static void countAll(String table) {
@@ -69,13 +70,17 @@ RowCounter counter = new RowCounter(dbName,user,pwd);
 		RowCounter counter = new RowCounter(dbName,user,pwd);
 		
 		//we define the condition to select specific rows and to count them
-		String where = "ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', " +
+		String where = 
+				"(ct_prenom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', " +
 				"'84/12/39/44', '05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
 				"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', 'gu', '01.01.1981', 'fr', 'REMPLACE MME SUINOT EN MALADIE', " +
-				"'01 47 68 12 63', 'evelyne.marcohli.fr', 'gerard.matheron', 'orosier', 'christophe.lemonnier', 'longes', 'yannick', 'jerome', " +
-				"'marie', 'philippe', 'gu', '661261090', 'lysian.gouelle', 'b', 'francis.', 'bernard',  'cecile', '603707107', " +
-				"'pas d\\'adresse e-mail', 'plachamp', 'pe', 'michel', 'franck.giethlen', 'celine.gambarini', '630108886', 'pas adresse', " +
-				"'contact-domaine-mauler.fr', 'jean', 'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer')"; 
+				"'01 47 68 12 63', " +
+				"'gu', '661261090', 'b', '603707107', " +
+				"'pas d\\'adresse e-mail', 'pe', '630108886', 'pas adresse', " +
+				"'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))"; 
+		
 		boolean printRows = true;
 		
 		System.out.println("\nTotal rows with empty email in "+table+" returned:" 
@@ -132,13 +137,13 @@ RowCounter counter = new RowCounter(dbName,user,pwd);
 				"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', " +
 				"'84/12/39/44', '05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
 				"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', 'gu', '01.01.1981', 'fr', 'REMPLACE MME SUINOT EN MALADIE', " +
-				"'01 47 68 12 63', 'evelyne.marcohli.fr', 'gerard.matheron', 'orosier', 'christophe.lemonnier', 'longes', 'yannick', 'jerome', " +
-				"'marie', 'philippe', 'gu', '661261090', 'lysian.gouelle', 'b', 'francis.', 'bernard',  'cecile', '603707107', " +
-				"'pas d\\'adresse e-mail', 'plachamp', 'pe', 'michel', 'franck.giethlen', 'celine.gambarini', '630108886', 'pas adresse', " +
-				"'contact-domaine-mauler.fr', 'jean', 'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))"; 
-		boolean printRows = true;
+				"'01 47 68 12 63', " +
+				"'gu', '661261090', 'b', '603707107', " +
+				"'pas d\\'adresse e-mail', 'pe', '630108886', 'pas adresse', " +
+				"'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))"; 
+		boolean printRows = false;
 		
-		System.out.println("\nTotal rows returned:" 
+		System.out.println("\nTotal empty rows in "+table+" : " 
 				+ counter.countFromWhere(table, where, printRows));
 	}
 	
@@ -166,9 +171,15 @@ RowCounter counter = new RowCounter(dbName,user,pwd);
 	private static void insertNonEmpty(String fromTable, String toTable){
 		
 		String where = 
-				"(ct_prenom NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir')) " +
-				"AND (ct_nom NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???')) " +
-				"AND (ct_mail NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', '84/12/39/44', '05/65/77/85/37'))";
+				"(ct_prenom NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_nom NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_mail NOT IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', " +
+				"'84/12/39/44', '05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
+				"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', 'gu', '01.01.1981', 'fr', 'REMPLACE MME SUINOT EN MALADIE', " +
+				"'01 47 68 12 63', " +
+				"'gu', '661261090', 'b', '603707107', " +
+				"'pas d\\'adresse e-mail', 'pe', '630108886', 'pas adresse', " +
+				"'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))"; 
 		
 		InsertRows insert = new InsertRows(dbName, user, pwd);
 		insert.insertFromWhere(fromTable, toTable, where);
@@ -185,9 +196,15 @@ RowCounter counter = new RowCounter(dbName,user,pwd);
 	private static void insertEmpty(String fromTable, String toTable){
 		
 		String where = 
-				"(ct_prenom IN ('', 'A DEFINIR', '68', '-', '.', 'definir')) " +
-				"AND (ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???')) " +
-				"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', '84/12/39/44', '05/65/77/85/37'))";
+				"(ct_prenom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
+				"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', " +
+				"'84/12/39/44', '05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
+				"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', 'gu', '01.01.1981', 'fr', 'REMPLACE MME SUINOT EN MALADIE', " +
+				"'01 47 68 12 63', " +
+				"'gu', '661261090', 'b', '603707107', " +
+				"'pas d\\'adresse e-mail', 'pe', '630108886', 'pas adresse', " +
+				"'aucune', '664998228', 'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))"; 
 		
 		InsertRows insert = new InsertRows(dbName, user, pwd);
 		insert.insertFromWhere(fromTable, toTable, where);

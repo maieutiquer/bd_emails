@@ -25,11 +25,12 @@ public class InsertRows extends SQLException {
 		this.pwd = pwd;
 	}
 	
-	public String[] insertFromWhere(String fromTable, String toTable, String where)  {
+	public void insertFromWhere(String fromTable, String toTable, String where)  {
 		Connection con = null; //opens connection
 		PreparedStatement statement = null; //query statement
         ResultSet result = null; //manages results
         String[] valuesList = null; //index 0 shows column number
+        int numberOfErrors=0;
 		try{
 			con = DriverManager.getConnection(dbName, user, pwd);
 		
@@ -59,16 +60,22 @@ public class InsertRows extends SQLException {
 				}
 				String values="";
 				for (int i=1; i<valuesList.length; i++) {
-					values += "'" + valuesList[i] + "', ";
+					values += "'" + valuesList[i].replace('\'', '\'') + "', ";
 				}
 				values = values.substring(0, (values.length()-2) ); //takes the last comma out of the string
-				System.out.println(columns + " hurrdurr " + values);
-				insertRow(toTable, columns, values);
+				System.out.println("values: " + values);
+				//insertRow(toTable, columns, values);
+				
+				String myInsertStatement = "INSERT INTO `"+toTable+"` ("+columns+") VALUES ("+values+");";
+				statement = con.prepareStatement(myInsertStatement);
+				int val = statement.executeUpdate();
 			}
 			
 		}catch(SQLException e) {
+			numberOfErrors++;
 			e.printStackTrace();
 		}catch(Exception e){
+			numberOfErrors++;
 			e.printStackTrace();
 		}finally{
 			try {
@@ -76,8 +83,9 @@ public class InsertRows extends SQLException {
 		      } catch (SQLException e) {
 		        e.printStackTrace();
 		      }
+			numberOfErrors++;
 		}
-		return valuesList;
+		
 	}
 	
 	/**
@@ -98,7 +106,7 @@ public class InsertRows extends SQLException {
 			statement = con.prepareStatement(myStatement);
 			
 			int val = statement.executeUpdate();
-			System.out.println("Success");
+			//System.out.println("Success");
 			//System.out.println(result.getWarnings());
 		}catch(SQLException e) {
 			e.printStackTrace();
