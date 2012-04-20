@@ -31,6 +31,7 @@ public class InsertRows extends SQLException {
         ResultSet result = null; //manages results
         String[] valuesList = null; //index 0 shows column number
         int numberOfErrors=0;
+        int val = 0;
 		try{
 			con = DriverManager.getConnection(dbName, user, pwd);
 		
@@ -54,21 +55,22 @@ public class InsertRows extends SQLException {
 			
 			int totalColumns = select.getTotalColumns(fromTable);
 			valuesList = new String[totalColumns+1];
+			
 			while(result.next()){
 				for (int i=1; i<=totalColumns;i++) {
 					valuesList[i] = result.getString(i);
 				}
 				String values="";
 				for (int i=1; i<valuesList.length; i++) {
-					values += "'" + valuesList[i].replace('\'', '\'') + "', ";
+					values += "'" + valuesList[i].replaceAll("'", "\\\\'") + "', ";
 				}
 				values = values.substring(0, (values.length()-2) ); //takes the last comma out of the string
-				System.out.println("values: " + values);
+				//System.out.println("values: " + values);
 				//insertRow(toTable, columns, values);
 				
 				String myInsertStatement = "INSERT INTO `"+toTable+"` ("+columns+") VALUES ("+values+");";
 				statement = con.prepareStatement(myInsertStatement);
-				int val = statement.executeUpdate();
+				val += statement.executeUpdate();
 			}
 			
 		}catch(SQLException e) {
@@ -85,7 +87,8 @@ public class InsertRows extends SQLException {
 		      }
 			numberOfErrors++;
 		}
-		
+		System.out.println("Number of errors: " + numberOfErrors);
+		System.out.println("Values: " + val);
 	}
 	
 	/**

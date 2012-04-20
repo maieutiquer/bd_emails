@@ -48,6 +48,7 @@ public class BdEmails {
 		//countEmptyEmail("bd_emails_4");
 		//countAll("bd_emails");
 		//countAll("bd_emails_5");
+		
 	}
 	
 	private static void countAll(String table) {
