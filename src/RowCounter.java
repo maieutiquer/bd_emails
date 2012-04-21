@@ -19,7 +19,14 @@ public class RowCounter extends SQLException {
 	private String user;
 	private String pwd;
 	
+	/**
+	 * 
+	 * @param dbName
+	 * @param user
+	 * @param pwd
+	 */
 	public RowCounter(String dbName, String user, String pwd) {
+		super();
 		this.dbName = dbName;
 		this.user = user;
 		this.pwd = pwd;
