@@ -1,4 +1,10 @@
 
+/**
+ * Has different commands that should be called from the main method.
+ * 
+ * @author Daniel
+ *
+ */
 public class Commands {
 	
 	private static String dbName; //DB name
@@ -29,6 +35,14 @@ public class Commands {
 			"'REMPLACE MME SUINOT EN MALADIE', '01 47 68 12 63', '661261090', 'b', '603707107', " +
 			"'pas d\\'adresse e-mail', '630108886', 'pas adresse', 'aucune', '664998228', " +
 			"'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))";
+	
+	/**
+	 * Has different commands that should be called from the main method.
+	 * 
+	 * @param dbName the url with the database name
+	 * @param user the username
+	 * @param pwd the password
+	 */
 	public Commands(String dbName, String user, String pwd) {
 		super();
 		Commands.dbName = dbName;
@@ -59,11 +73,12 @@ public class Commands {
 		RowCounter counter = new RowCounter(dbName,user,pwd);
 		
 		//no condition, select all
-		String where = ""; 
-		boolean printRows = false;
+//		String where = ""; 
+//		boolean printRows = false;
 		
 		System.out.println("Total rows in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countAll(table));
+		
 	}
 	
 	/**
@@ -76,10 +91,9 @@ public class Commands {
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyGenderCond; 
-		boolean printRows = false;
 		
 		System.out.println("Total rows with empty gender in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 	
 	/**
@@ -93,10 +107,9 @@ public class Commands {
 		//we define the condition to select specific rows and to count them
 		String where = emptyEmailCond; 
 		
-		boolean printRows = false;
 		
 		System.out.println("Total rows with empty email in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 	
 	/**
@@ -109,10 +122,9 @@ public class Commands {
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyLastnameCond; 
-		boolean printRows = false;
 		
 		System.out.println("Total rows with empty last name in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 	
 	/**
@@ -125,10 +137,9 @@ public class Commands {
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyFirstnameCond; 
-		boolean printRows = false;
 		
 		System.out.println("Total rows with empty first name in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 
 	/**
@@ -144,10 +155,9 @@ public class Commands {
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyRowsCond; 
-		boolean printRows = false;
 		
 		System.out.println("Total empty rows in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 
 	/**
@@ -162,11 +172,10 @@ public class Commands {
 		RowCounter counter = new RowCounter(dbName,user,pwd);
 		
 		//we define the condition to select specific rows and to count them
-		String where = "NOT ("+emptyRowsCond+")"; 
-		boolean printRows = false;
+		String where = "NOT ("+emptyRowsCond+")";
 		
 		System.out.println("Total non-empty rows in "+table+" : " 
-				+ counter.countFromWhere(table, where, printRows));
+				+ counter.countFromWhere(table, where));
 	}
 	
 	/**

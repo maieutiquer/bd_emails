@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * This class contains methods to count the rows.
+ * Contains methods to count the rows.
  * 
  * @author Daniel
  *
@@ -20,10 +20,11 @@ public class RowCounter extends SQLException {
 	private String pwd;
 	
 	/**
+	 * Contains methods to count the rows.
 	 * 
-	 * @param dbName
-	 * @param user
-	 * @param pwd
+	 * @param dbName the url with the database name
+	 * @param user the username
+	 * @param pwd the password
 	 */
 	public RowCounter(String dbName, String user, String pwd) {
 		super();
@@ -33,40 +34,30 @@ public class RowCounter extends SQLException {
 	}
 	
 	/**
-	 * 
-	 * 
+	 * Counts rows, satisfying certain conditions, from a given table.
 	 * @param where
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public int countFromWhere(String table, String where, boolean printRows)  {
-		Connection con = null;
+	public int countFromWhere(String table, String where)  {
+		Connection con = null; //opens connection
+		PreparedStatement statement = null; //query statement
+        ResultSet result = null; //manages results
+        int totalRows=-1;
 		try{
 			con = DriverManager.getConnection(dbName, user, pwd);
-		
-			String myStatement = "SELECT * FROM " + table;
-			PreparedStatement statement;
-			if (where=="") {
+			
+			String myStatement = "SELECT COUNT(*) FROM " + table;
+			if (where=="" || where==null) {
 				statement = con.prepareStatement(myStatement);
 			}else{
 				statement = con.prepareStatement(myStatement + " WHERE " + where); 
 			}
-			ResultSet result = statement.executeQuery();
-			int c=0; //the counter
-			if(printRows){
-				while (result.next()) {
-					System.out.println("First Name: \" "+ result.getString(4) 
-							+ " \" ; Last Name: \" " + result.getString(5) 
-							+ " \" ; Email: \" " + result.getString(7)
-							+ " \" ; ");
-					c++;
-				}
-			}else{
-				while (result.next()) {
-					c++;
-				}
-			}
-			return c;
+			result = statement.executeQuery();
+			while(result.next()){
+        		totalRows=result.getInt("COUNT(*)");                              
+               }
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally{
@@ -76,67 +67,39 @@ public class RowCounter extends SQLException {
 		        e.printStackTrace();
 		      }
 		}
-		return -1; //in case of exception
-	}
-	
-	public int countEmpty(boolean printRows)  {
-		Connection con = null;
-		try{
-			con = DriverManager.getConnection(dbName, user, pwd);
-		
-			String myStatement = "SELECT * FROM bd_emails";
-			PreparedStatement statement = con.prepareStatement(myStatement);
-			
-			ResultSet result = statement.executeQuery();
-			int c=0; //the counter
-			if(printRows){
-				while (result.next()) {
-					if (result.getString(4).equals("") && result.getString(5).equals("") && result.getString(7).equals("")) {
-						System.out.println("First Name: \" "+ result.getString(4) 
-								+ " \" ; Last Name: \" " + result.getString(5) 
-								+ " \" ; Email: \" " + result.getString(7)
-								+ " \" ; ");
-						c++;
-					}
-				}
-			}else{
-				while (result.next()) {
-					if (result.getString(4)=="" && result.getString(5)=="" && result.getString(7)=="") {
-						c++;
-					}
-				}
-			}
-			return c;
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
-		}
-		return -1; //in case of exception
+		return totalRows; //in case of exception
 	}
 	
 	/**
-	 * Counts the rows of the result of a query, where the statement is passed as an argument.
-	 * <br />To be used with caution - it does not filter the statement.
+	 * Counts all rows from a table.
 	 * 
-	 * @param statement
-	 * @return
-	 * @throws Exception
-	 */	
-	public int countFromStatement(PreparedStatement statement) throws Exception {
-		int i=0;
-		ResultSet result = statement.executeQuery();
-		while(result.next())
-		{
-			i++;
-		}
-		return i;
+	 * @param table the table whose rows to be counted
+	 * @return the total number of rows in the given table
+	 */
+	public int countAll(String table) {
+		Connection con = null; //opens connection
+		PreparedStatement statement = null; //query statement
+        ResultSet result = null; //manages results
+        int totalRows=-1;
+        try{
+        	con = DriverManager.getConnection(dbName, user, pwd);
+        	statement=con.prepareStatement("SELECT COUNT(*) FROM "+table);
+        	result = statement.executeQuery();
+        	while(result.next()){
+        		totalRows=result.getInt("COUNT(*)");                              
+               }
+        }catch(SQLException s){
+        	s.printStackTrace();
+        }catch(Exception e){
+        	e.printStackTrace();
+        }finally{
+        	try {
+		        con.close();
+		      } catch (SQLException e) {
+		        e.printStackTrace();
+		      }
+        }
+		return totalRows;
 	}
-	
-	
 	
 }

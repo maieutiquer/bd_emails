@@ -8,7 +8,7 @@ import java.sql.SQLException;
 /**
  * Has different methods to insert rows into tables.
  * 
- * @author User
+ * @author Daniel
  *
  */
 public class InsertRows extends SQLException {
@@ -21,10 +21,11 @@ public class InsertRows extends SQLException {
 	private int val = 0;
 	
 	/**
+	 * Has different methods to insert rows into tables.
 	 * 
-	 * @param dbName
-	 * @param user
-	 * @param pwd
+	 * @param dbName the url with the database name
+	 * @param user the username
+	 * @param pwd the password
 	 */
 	public InsertRows(String dbName, String user, String pwd) {
 		super();

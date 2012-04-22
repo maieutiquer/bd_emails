@@ -5,6 +5,12 @@ import java.sql.PreparedStatement;
 //import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Creates empty table or a table with specific rows.
+ * 
+ * @author Daniel
+ *
+ */
 public class CopyTable extends SQLException {
 
 	private static final long serialVersionUID = 1385824702364079515L;
@@ -13,10 +19,11 @@ public class CopyTable extends SQLException {
 	private String pwd;
 	
 	/**
+	 * Creates empty table or a table with specific rows.
 	 * 
-	 * @param dbName
-	 * @param user
-	 * @param pwd
+	 * @param dbName the url with the database name
+	 * @param user the username
+	 * @param pwd the password
 	 */
 	public CopyTable(String dbName, String user, String pwd) {
 		super();
@@ -41,14 +48,22 @@ public class CopyTable extends SQLException {
         try{
         	con = DriverManager.getConnection(dbName, user, pwd);
         	
+        	String createTableStatement = "CREATE TABLE "+newTable+" LIKE "+sourceTable+"; "; 
+        	statement = con.prepareStatement(createTableStatement);
+        	statement.executeUpdate();
+        	System.out.println("Successful creation of "+newTable);
+        	
         	String myStatement = //"CREATE TABLE "+newTable+" LIKE "+sourceTable+"; " +
         			"INSERT INTO "+newTable+" SELECT * FROM "+sourceTable+" WHERE "+where+";";
-        	System.out.println(myStatement);
+        	System.out.println("Copy condition: " + where);
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
+			
+			RowCounter counter = new RowCounter(dbName,user,pwd);
+			System.out.println("Total rows inserted in "+newTable+" : " 
+					+ counter.countFromWhere(newTable, where));
         	
         }catch(SQLException s){
-        	System.out.println("Table already exists!");
         	s.printStackTrace();
         }catch(Exception e){
         	e.printStackTrace();

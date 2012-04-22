@@ -37,21 +37,26 @@ public class BdEmails {
 //		insertEmpty("bd_emails_05","empty_deleted");
 		
 //		commands.copyEmpty("bd_emails_03", "empty_deleted_3");
-//		commands.copyNonEmpty("bd_emails_03", "bd_emails_05");
+//		commands.copyNonEmpty("bd_emails_03", "bd_emails_temp3");
 		
 		commands.countAll("bd_emails_03");
 		commands.countEmpty("bd_emails_03");
 		commands.countNonEmpty("bd_emails_03");
 		System.out.println();
+		commands.countAll("empty_deleted_3");
+		System.out.println();
 		commands.countAll("bd_emails_05");
 		commands.countEmpty("bd_emails_05");
 		commands.countNonEmpty("bd_emails_05");
-		commands.countAll("empty_deleted_3");
 		System.out.println();
 		commands.countEmptyFirstname("bd_emails_05");
 		commands.countEmptyLastname("bd_emails_05");
 		commands.countEmptyEmail("bd_emails_05");
 		commands.countEmptyGender("bd_emails_05");
+		
+//		commands.countAll("bd_emails_03");
+		
+		System.exit(0);
 	}
 	
 	
