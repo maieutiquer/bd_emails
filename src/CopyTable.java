@@ -73,7 +73,41 @@ public class CopyTable extends SQLException {
 		      } catch (SQLException e) {
 		        e.printStackTrace();
 		      }
+        }
+	}
+	
+	public void copyDistinct(String sourceTable, String newTable, String columns){
+		Connection con = null; //opens connection
+		PreparedStatement statement = null; //query statement
+        //ResultSet result = null; //manages results
+        
+        try{
+        	con = DriverManager.getConnection(dbName, user, pwd);
+        	
+        	String createTableStatement = "CREATE TABLE "+newTable+" LIKE "+sourceTable+"; "; 
+        	statement = con.prepareStatement(createTableStatement);
+        	statement.executeUpdate();
+        	System.out.println("Successful creation of "+newTable);
+        	
+        	String myStatement = //"CREATE TABLE "+newTable+" LIKE "+sourceTable+"; " +
+        			"INSERT INTO "+newTable+" SELECT DISTINCT("+columns+") FROM "+sourceTable+";";
+			statement = con.prepareStatement(myStatement);
+			statement.executeUpdate();
 			
+			RowCounter counter = new RowCounter(dbName,user,pwd);
+			System.out.println("Total rows in "+newTable+" : " 
+					+ counter.countAll(newTable));
+        	
+        }catch(SQLException s){
+        	s.printStackTrace();
+        }catch(Exception e){
+        	e.printStackTrace();
+        }finally{
+        	try {
+		        con.close();
+		      } catch (SQLException e) {
+		        e.printStackTrace();
+		      }
         }
 	}
 	

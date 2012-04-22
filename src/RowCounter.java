@@ -54,6 +54,7 @@ public class RowCounter extends SQLException {
 			}else{
 				statement = con.prepareStatement(myStatement + " WHERE " + where); 
 			}
+			
 			result = statement.executeQuery();
 			while(result.next()){
         		totalRows=result.getInt("COUNT(*)");                              
@@ -67,7 +68,39 @@ public class RowCounter extends SQLException {
 		        e.printStackTrace();
 		      }
 		}
-		return totalRows; //in case of exception
+		return totalRows;
+	}
+	
+	public int countDistinct(String table, String where, String column) {
+		Connection con = null; //opens connection
+		PreparedStatement statement = null; //query statement
+        ResultSet result = null; //manages results
+        int totalRows=-1;
+		try{
+			con = DriverManager.getConnection(dbName, user, pwd);
+			
+			String myStatement = "SELECT COUNT(DISTINCT "+column+") FROM " + table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myStatement + " WHERE " + where); 
+			}else{
+				statement = con.prepareStatement(myStatement);
+			}
+			
+			result = statement.executeQuery();
+			while(result.next()){
+        		totalRows=result.getInt("COUNT(*)");                              
+               }
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+		        con.close();
+		      } catch (SQLException e) {
+		        e.printStackTrace();
+		      }
+		}
+		return totalRows;
+		
 	}
 	
 	/**

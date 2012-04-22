@@ -10,7 +10,7 @@ import java.sql.SQLException;
  * <br />Not suitable for counting as much as for obtaining data.
  * 
  * 
- * @author User
+ * @author Daniel
  *
  */
 public class Select extends SQLException {
@@ -20,17 +20,27 @@ public class Select extends SQLException {
 	private String user;
 	private String pwd;
 	
+	/**
+	 * Used to make various selections and get information about the database or a specific table.
+	 * <br />Not suitable for counting as much as for obtaining data.
+	 * 
+	 * @param dbName the url with the database name
+	 * @param user the username
+	 * @param pwd the password
+	 */
 	public Select(String dbName, String user, String pwd) {
+		super();
 		this.dbName = dbName;
 		this.user = user;
 		this.pwd = pwd;
 	}
 	
+	//under development
 	public String[] selectValuesFromWhere(String table, String where)  {
 		Connection con = null; //opens connection
 		PreparedStatement statement = null; //query statement
         ResultSet result = null; //manages results
-        String[] values = null; //index 0 shows column number
+        String[] valuesList = null; //index 0 shows column number
 		try{
 			con = DriverManager.getConnection(dbName, user, pwd);
 		
@@ -44,10 +54,10 @@ public class Select extends SQLException {
 			result = statement.executeQuery();
 			
 			int totalColumns = getTotalColumns(table);
+			valuesList = new String[totalColumns+1];
 			while(result.next()){
-				values = null;
-				for (int i=0; i<totalColumns;i++) {
-					values[i] = result.getString(i+1);
+				for (int i=1; i<totalColumns;i++) {
+					valuesList[i] = result.getString(i+1);
 				}
 			}
 			
@@ -62,7 +72,7 @@ public class Select extends SQLException {
 		        e.printStackTrace();
 		      }
 		}
-		return values;
+		return valuesList;
 	}
 	
 	/**

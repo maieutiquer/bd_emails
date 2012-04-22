@@ -51,7 +51,18 @@ public class Commands {
 	}
 	
 	/**
-	 * Copies empty rows to a new table
+	 * Copies distinc domains to a new table
+	 * 
+	 * @param sourceTable the table to take empty rows from
+	 * @param newTable the table to be created with the same structure and with the empty rows copied
+	 */
+	public void insertDistinctDomains(String sourceTable, String newTable){
+		InsertRows insert = new InsertRows(dbName, user, pwd);
+		insert.insertDistinct(sourceTable, newTable, "domaines");
+	}
+	
+	/**
+	 * Copies empty rows to a new table.
 	 * 
 	 * @param sourceTable the table to take empty rows from
 	 * @param newTable the table to be created with the same structure and with the empty rows copied

@@ -34,6 +34,36 @@ public class InsertRows extends SQLException {
 		this.pwd = pwd;
 	}
 	
+	public void insertDistinct(String sourceTable, String newTable, String columns){
+		Connection con = null; //opens connection
+		PreparedStatement statement = null; //query statement
+        //ResultSet result = null; //manages results
+        
+        try{
+        	con = DriverManager.getConnection(dbName, user, pwd);
+        	
+        	String myStatement = //"CREATE TABLE "+newTable+" LIKE "+sourceTable+"; " +
+        			"INSERT INTO "+newTable+" (name) SELECT DISTINCT("+columns+") FROM "+sourceTable+";";
+			statement = con.prepareStatement(myStatement);
+			statement.executeUpdate();
+			
+			RowCounter counter = new RowCounter(dbName,user,pwd);
+			System.out.println("Total rows in "+newTable+" : " 
+					+ counter.countAll(newTable));
+        	
+        }catch(SQLException s){
+        	s.printStackTrace();
+        }catch(Exception e){
+        	e.printStackTrace();
+        }finally{
+        	try {
+		        con.close();
+		      } catch (SQLException e) {
+		        e.printStackTrace();
+		      }
+        	}
+        }
+	
 	/**
 	 * Copies rows satisfying certain condition from one table to another.
 	 * 
