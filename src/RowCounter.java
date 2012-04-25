@@ -1,8 +1,4 @@
 
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -28,6 +24,7 @@ public class RowCounter extends DataAccess {
 	
 	/**
 	 * Counts rows, satisfying certain conditions, from a given table.
+	 * 
 	 * @param where
 	 * 
 	 * @return
@@ -50,8 +47,9 @@ public class RowCounter extends DataAccess {
                }
 		}catch(SQLException e) {
 			e.printStackTrace();
+		}finally{
+			closeConnection();
 		}
-		closeConnection();
 		return totalRows;
 	}
 	
@@ -79,8 +77,9 @@ public class RowCounter extends DataAccess {
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
+		}finally{
+			closeConnection();
 		}
-		closeConnection();
 		return totalRows;
 	}
 	
@@ -101,8 +100,9 @@ public class RowCounter extends DataAccess {
                }
         }catch(SQLException s){
         	s.printStackTrace();
+        }finally{
+        	closeConnection();
         }
-        closeConnection();
 		return totalRows;
 	}
 	

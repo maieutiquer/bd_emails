@@ -1,8 +1,4 @@
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -11,12 +7,9 @@ import java.sql.SQLException;
  * @author Daniel
  *
  */
-public class CopyTable extends SQLException {
+public class CopyTable extends DataAccess{
 
 	private static final long serialVersionUID = 1385824702364079515L;
-	private String dbName;
-	private String user;
-	private String pwd;
 	
 	/**
 	 * Creates empty table or a table with specific rows.
@@ -26,10 +19,7 @@ public class CopyTable extends SQLException {
 	 * @param pwd the password
 	 */
 	public CopyTable(String dbName, String user, String pwd) {
-		super();
-		this.dbName = dbName;
-		this.user = user;
-		this.pwd = pwd;
+		super(dbName, user, pwd);
 	}
 	
 	/**
@@ -41,21 +31,19 @@ public class CopyTable extends SQLException {
 	 * @param where the condition that needs to be satisfied for the rows to be copied
 	 */
 	public void copyTableFromWhere(String sourceTable, String newTable, String where) {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        //ResultSet result = null; //manages results
-        
+		openConnection();
         try{
-        	con = DriverManager.getConnection(dbName, user, pwd);
-        	
         	String createTableStatement = "CREATE TABLE "+newTable+" LIKE "+sourceTable+"; "; 
         	statement = con.prepareStatement(createTableStatement);
         	statement.executeUpdate();
         	System.out.println("Successful creation of "+newTable);
         	
-        	String myStatement = //"CREATE TABLE "+newTable+" LIKE "+sourceTable+"; " +
-        			"INSERT INTO "+newTable+" SELECT * FROM "+sourceTable+" WHERE "+where+";";
-        	System.out.println("Copy condition: " + where);
+        	String myStatement = "INSERT INTO "+newTable+" SELECT * FROM "+sourceTable;
+        	if (where=="" || where==null) {
+        		statement = con.prepareStatement(myStatement);
+        	}else{
+        		statement = con.prepareStatement(myStatement+" WHERE "+where+";");
+        	}
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 			
@@ -65,32 +53,29 @@ public class CopyTable extends SQLException {
         	
         }catch(SQLException s){
         	s.printStackTrace();
-        }catch(Exception e){
-        	e.printStackTrace();
         }finally{
-        	try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
+        	closeConnection();
         }
 	}
 	
-	public void copyDistinct(String sourceTable, String newTable, String columns){
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        //ResultSet result = null; //manages results
-        
+	/**
+	 * Copies rows with discinct values in a column from one table to another.
+	 * 
+	 * @param sourceTable the table to take rows from
+	 * @param newTable the table to be created with the same structure and with the rows copied
+	 * @param sourceColumns the column to be checked for distinct values
+	 * @param newColumns
+	 */
+	public void copyDistinct(String sourceTable, String newTable, String sourceColumns){
+		openConnection();
         try{
-        	con = DriverManager.getConnection(dbName, user, pwd);
-        	
         	String createTableStatement = "CREATE TABLE "+newTable+" LIKE "+sourceTable+"; "; 
         	statement = con.prepareStatement(createTableStatement);
         	statement.executeUpdate();
         	System.out.println("Successful creation of "+newTable);
         	
-        	String myStatement = //"CREATE TABLE "+newTable+" LIKE "+sourceTable+"; " +
-        			"INSERT INTO "+newTable+" SELECT DISTINCT("+columns+") FROM "+sourceTable+";";
+        	String myStatement = 
+        			"INSERT INTO "+newTable+" SELECT DISTINCT("+sourceColumns+") FROM "+sourceTable+";";
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 			
@@ -100,14 +85,8 @@ public class CopyTable extends SQLException {
         	
         }catch(SQLException s){
         	s.printStackTrace();
-        }catch(Exception e){
-        	e.printStackTrace();
         }finally{
-        	try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
+        	closeConnection();
         }
 	}
 	

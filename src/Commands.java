@@ -25,16 +25,16 @@ public class Commands {
 			"'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer')";
 	private static final String emptyRowsCond = 
 			"("+emptyFirstnameCond+") AND ("+emptyLastnameCond+") AND ("+emptyEmailCond+")"; 
-	@SuppressWarnings("unused") //simply here to show a full model of empty rows condition
-	private static final String emptyRowsCondFull = 
-			"(ct_prenom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
-			"AND (ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
-			"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC'," +
-			"'84/12/39/44', '05/65/77/85/37',  'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
-			"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', '01.01.1981', 'fr', " +
-			"'REMPLACE MME SUINOT EN MALADIE', '01 47 68 12 63', '661261090', 'b', '603707107', " +
-			"'pas d\\'adresse e-mail', '630108886', 'pas adresse', 'aucune', '664998228', " +
-			"'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))";
+	
+//	private static final String emptyRowsCondFull = 
+//			"(ct_prenom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
+//			"AND (ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')) " +
+//			"AND (ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC'," +
+//			"'84/12/39/44', '05/65/77/85/37',  'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
+//			"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', '01.01.1981', 'fr', " +
+//			"'REMPLACE MME SUINOT EN MALADIE', '01 47 68 12 63', '661261090', 'b', '603707107', " +
+//			"'pas d\\'adresse e-mail', '630108886', 'pas adresse', 'aucune', '664998228', " +
+//			"'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer'))";
 	
 	/**
 	 * Has different commands that should be called from the main method.
@@ -51,14 +51,34 @@ public class Commands {
 	}
 	
 	/**
-	 * Copies distinc domains to a new table
+	 * Writes the number of users of each domain into the domains table.
+	 * 
+	 * @param sourceTable
+	 * @param domainsTable
+	 */
+	public void updateDomainUsersNumber(String sourceTable, String domainsTable) {
+		Select select = new Select(dbName, user, pwd);
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Modify modify = new Modify(dbName, user, pwd);
+		CopyTable copy = new CopyTable(dbName, user, pwd);
+		
+		
+	}
+	
+	public void cloneTable(String source, String cloned){
+		CopyTable copy = new CopyTable(dbName, user, pwd);
+		copy.copyTableFromWhere(source, cloned, null);
+	}
+	
+	/**
+	 * Copies distinct domains to a new table
 	 * 
 	 * @param sourceTable the table to take empty rows from
 	 * @param newTable the table to be created with the same structure and with the empty rows copied
 	 */
 	public void insertDistinctDomains(String sourceTable, String newTable){
 		InsertRows insert = new InsertRows(dbName, user, pwd);
-		insert.insertDistinct(sourceTable, newTable, "domaines");
+		insert.insertDistinct(sourceTable, newTable, "domaines", "name");
 	}
 	
 	/**

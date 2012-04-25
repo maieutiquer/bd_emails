@@ -8,7 +8,7 @@ import java.sql.SQLException;
 /**
  * Contains attributes and methods, common for other classes that connect to the database.
  * 
- * @author User
+ * @author Daniel
  *
  */
 public class DataAccess extends SQLException {

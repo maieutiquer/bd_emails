@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
@@ -13,12 +10,9 @@ import java.sql.SQLException;
  * @author Daniel
  *
  */
-public class Select extends SQLException {
+public class Select extends DataAccess {
 	
 	private static final long serialVersionUID = 3188564773946400482L;
-	private String dbName;
-	private String user;
-	private String pwd;
 	
 	/**
 	 * Used to make various selections and get information about the database or a specific table.
@@ -29,23 +23,40 @@ public class Select extends SQLException {
 	 * @param pwd the password
 	 */
 	public Select(String dbName, String user, String pwd) {
-		super();
-		this.dbName = dbName;
-		this.user = user;
-		this.pwd = pwd;
+		super(dbName, user, pwd);
+	}
+	
+	/**
+	 * Returns the value of a field from a table. If more than one result, the first one is returned.
+	 * 
+	 * @param table
+	 * @param where
+	 * @param column
+	 * @return
+	 */
+	public String selectField(String table, String where, String column){
+        String field=null;
+        openConnection();
+        try{
+        	String myStatement = "SELECT "+column+" WHERE "+where+";";
+			statement = con.prepareStatement(myStatement);
+			result = statement.executeQuery();
+			field = result.getString(0);
+        }catch(SQLException s){
+			s.printStackTrace();
+        }finally{
+        	closeConnection();
+        }
+		return field;
 	}
 	
 	//under development
-	public String[] selectValuesFromWhere(String table, String where)  {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
+	public String[] selectValuesFromWhere(String table, String where) {
         String[] valuesList = null; //index 0 shows column number
+        openConnection();
 		try{
-			con = DriverManager.getConnection(dbName, user, pwd);
-		
 			String myStatement = "SELECT * FROM " + table;
-
+			
 			if (where=="") {
 				statement = con.prepareStatement(myStatement);
 			}else{
@@ -63,14 +74,8 @@ public class Select extends SQLException {
 			
 		}catch(SQLException e) {
 			e.printStackTrace();
-		}catch(Exception e){
-			e.printStackTrace();
 		}finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
+			closeConnection();
 		}
 		return valuesList;
 	}
@@ -81,27 +86,19 @@ public class Select extends SQLException {
 	 * @param table the table whose columns to count
 	 * @return total number of columns
 	 */
-	public int getTotalColumns(String table){
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
+	public int getTotalColumns(String table) {
         int numberOfColumns = 0;
+        openConnection();
         try{
-        	con = DriverManager.getConnection(dbName, user, pwd);
         	statement = con.prepareStatement("SELECT * FROM " + table);
         	result = statement.executeQuery();
         	ResultSetMetaData rsMetaData = result.getMetaData();
         	numberOfColumns = rsMetaData.getColumnCount();
-        	
-        }catch(Exception e){
-        	e.printStackTrace();
+        }catch(SQLException s){
+        	s.printStackTrace();
         }finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
-		}
+        	closeConnection();
+        }
         return numberOfColumns;
 	}
 	
@@ -112,12 +109,9 @@ public class Select extends SQLException {
 	 * @return a list of the columns in an array of strings
 	 */
 	public String[] getColumnsAsArray(String table) {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
         String[] columnNames = null; //list of column names as an array of strings
+        openConnection();
         try{
-        	con = DriverManager.getConnection(dbName, user, pwd);
         	statement = con.prepareStatement("SELECT * FROM " + table);
         	result = statement.executeQuery();
         	ResultSetMetaData rsMetaData = result.getMetaData();
@@ -130,15 +124,11 @@ public class Select extends SQLException {
         	    // Get the name of the column's table name
         	    columnNames[i] = columnName;
         	}
-        }catch(Exception e){
-        	e.printStackTrace();
+        }catch(SQLException s){
+        	s.printStackTrace();
         }finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
-		}
+        	closeConnection();
+        }
         return columnNames;
 	}
 	
