@@ -1,36 +1,29 @@
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+//import java.sql.Connection;
+//import java.sql.DriverManager;
+//import java.sql.PreparedStatement;
+//import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Contains methods to count the rows.
+ * Contains methods to count rows.
  * 
  * @author Daniel
  *
  */
-public class RowCounter extends SQLException {
+public class RowCounter extends DataAccess {
 	
 	private static final long serialVersionUID = 1000680432614489645L;
 
-	private String dbName;
-	private String user;
-	private String pwd;
-	
 	/**
-	 * Contains methods to count the rows.
+	 * Contains methods to count rows.
 	 * 
 	 * @param dbName the url with the database name
 	 * @param user the username
 	 * @param pwd the password
 	 */
 	public RowCounter(String dbName, String user, String pwd) {
-		super();
-		this.dbName = dbName;
-		this.user = user;
-		this.pwd = pwd;
+		super(dbName, user, pwd);
 	}
 	
 	/**
@@ -41,13 +34,9 @@ public class RowCounter extends SQLException {
 	 * @throws Exception
 	 */
 	public int countFromWhere(String table, String where)  {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
         int totalRows=-1;
+        openConnection();
 		try{
-			con = DriverManager.getConnection(dbName, user, pwd);
-			
 			String myStatement = "SELECT COUNT(*) FROM " + table;
 			if (where=="" || where==null) {
 				statement = con.prepareStatement(myStatement);
@@ -61,46 +50,38 @@ public class RowCounter extends SQLException {
                }
 		}catch(SQLException e) {
 			e.printStackTrace();
-		}finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
 		}
+		closeConnection();
 		return totalRows;
 	}
 	
+	/**
+	 * Counts distinct values in a column of a table. Takes a WHERE condition as a parameter.
+	 * 
+	 * @param table
+	 * @param where
+	 * @param column
+	 * @return
+	 */
 	public int countDistinct(String table, String where, String column) {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
         int totalRows=-1;
+        openConnection();
 		try{
-			con = DriverManager.getConnection(dbName, user, pwd);
-			
 			String myStatement = "SELECT COUNT(DISTINCT "+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
-				statement = con.prepareStatement(myStatement + " WHERE " + where); 
+				statement = con.prepareStatement(myStatement + " WHERE " + where);
 			}else{
 				statement = con.prepareStatement(myStatement);
 			}
-			
 			result = statement.executeQuery();
-			while(result.next()){
+			while (result.next()) {
         		totalRows=result.getInt("COUNT(*)");                              
-               }
-		}catch(SQLException e) {
+			}
+		}catch(SQLException e){
 			e.printStackTrace();
-		}finally{
-			try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
 		}
+		closeConnection();
 		return totalRows;
-		
 	}
 	
 	/**
@@ -110,12 +91,9 @@ public class RowCounter extends SQLException {
 	 * @return the total number of rows in the given table
 	 */
 	public int countAll(String table) {
-		Connection con = null; //opens connection
-		PreparedStatement statement = null; //query statement
-        ResultSet result = null; //manages results
         int totalRows=-1;
+        openConnection();
         try{
-        	con = DriverManager.getConnection(dbName, user, pwd);
         	statement=con.prepareStatement("SELECT COUNT(*) FROM "+table);
         	result = statement.executeQuery();
         	while(result.next()){
@@ -123,15 +101,8 @@ public class RowCounter extends SQLException {
                }
         }catch(SQLException s){
         	s.printStackTrace();
-        }catch(Exception e){
-        	e.printStackTrace();
-        }finally{
-        	try {
-		        con.close();
-		      } catch (SQLException e) {
-		        e.printStackTrace();
-		      }
         }
+        closeConnection();
 		return totalRows;
 	}
 	
