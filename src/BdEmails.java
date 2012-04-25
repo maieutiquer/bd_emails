@@ -54,9 +54,12 @@ public class BdEmails {
 //		commands.countEmptyGender("bd_emails_05");
 		
 //		commands.insertDistinctDomains("bd_emails_05", "domains_1");
+//		commands.cloneTable("domains_1", "domains_2");
 //		commands.countAll("domains_1");
+//		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
+//		commands.showColumnNames("domains_2");
 		
-		commands.cloneTable("domains_1", "domains_2");
+		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
 		
 		System.exit(0);
 	}

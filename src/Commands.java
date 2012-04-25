@@ -60,8 +60,14 @@ public class Commands {
 		Select select = new Select(dbName, user, pwd);
 		RowCounter counter = new RowCounter(dbName, user, pwd);
 		Modify modify = new Modify(dbName, user, pwd);
-		CopyTable copy = new CopyTable(dbName, user, pwd);
-		
+		int totalDomains = counter.countAll(domainsTable);
+		for(int i=0;i<totalDomains;i++){
+			String whereId = "id="+(i+1);
+			String domainName = select.selectField(domainsTable, whereId, "name");
+			String whereDomainName="domaines='"+domainName+"'";
+			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
+			modify.modifyWhere(domainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
+		}
 		
 	}
 	
