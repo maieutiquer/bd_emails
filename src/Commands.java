@@ -51,10 +51,33 @@ public class Commands {
 	}
 	
 	/**
+	 * Writes the number of distinct companies of each domain into the domains table.
+	 * 
+	 * @param sourceTable  the table with a list of all users
+	 * @param domainsTable the table with a list of all domains
+	 */
+	public void updateDomainCompaniesNumber(String sourceTable, String domainsTable){
+		
+	}
+	
+	/**
+	 * Counts domains with a given number of users.
+	 * 
+	 * @param table the table with the list of domains
+	 * @param numberOfUsers the number of users to check
+	 */
+	public void countDomainsWithXUsers(String table, int numberOfUsers) {
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		String where = "number_of_users="+numberOfUsers;
+		int result = counter.countFromWhere(table, where);
+		System.out.println("Number of domains (in table "+table+") with "+numberOfUsers+" users: "+result);
+	}
+	
+	/**
 	 * Writes the number of users of each domain into the domains table.
 	 * 
-	 * @param sourceTable
-	 * @param domainsTable
+	 * @param sourceTable  the table with a list of all users
+	 * @param domainsTable the table with a list of all domains
 	 */
 	public void updateDomainUsersNumber(String sourceTable, String domainsTable) {
 		Select select = new Select(dbName, user, pwd);
@@ -64,6 +87,7 @@ public class Commands {
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
 			String domainName = select.selectField(domainsTable, whereId, "name");
+			domainName = domainName.replaceAll("'", "\\\\'");
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
 			modify.modifyWhere(domainsTable, whereId, "number_of_users", Integer.toString(totalUsers));

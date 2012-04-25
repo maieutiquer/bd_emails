@@ -55,11 +55,13 @@ public class BdEmails {
 		
 //		commands.insertDistinctDomains("bd_emails_05", "domains_1");
 //		commands.cloneTable("domains_1", "domains_2");
-//		commands.countAll("domains_1");
 //		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
 //		commands.showColumnNames("domains_2");
+//		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
 		
-		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
+		commands.countAll("domains_2");
+		commands.countDomainsWithXUsers("domains_2", 0);
+		commands.countDomainsWithXUsers("domains_2", 1);
 		
 		System.exit(0);
 	}
