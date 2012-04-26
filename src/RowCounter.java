@@ -73,7 +73,7 @@ public class RowCounter extends DataAccess {
 			}
 			result = statement.executeQuery();
 			while (result.next()) {
-        		totalRows=result.getInt("COUNT(*)");                              
+        		totalRows=result.getInt("COUNT(DISTINCT "+column+")");                              
 			}
 		}catch(SQLException e){
 			e.printStackTrace();

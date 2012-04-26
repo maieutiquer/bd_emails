@@ -38,10 +38,6 @@ public class BdEmails {
 //		commands.copyEmpty("bd_emails_03", "empty_deleted_3");
 //		commands.copyNonEmpty("bd_emails_03", "bd_emails_temp3");
 		
-//		commands.countAll("bd_emails_03");
-//		commands.countEmpty("bd_emails_03");
-//		commands.countNonEmpty("bd_emails_03");
-//		System.out.println();
 //		commands.countAll("empty_deleted_3");
 //		System.out.println();
 //		commands.countAll("bd_emails_05");
@@ -58,10 +54,15 @@ public class BdEmails {
 //		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
 //		commands.showColumnNames("domains_2");
 //		commands.updateDomainUsersNumber("bd_emails_05", "domains_2");
+//		commands.updateDomainCompaniesNumber("bd_emails_05", "domains_3");
+//		commands.countAll("domains_3");
+//		commands.countDomainsWithXCompanies("domains_3", 0);
+//		commands.countDomainsWithXCompanies("domains_3", 1);
 		
-		commands.countAll("domains_2");
-		commands.countDomainsWithXUsers("domains_2", 0);
-		commands.countDomainsWithXUsers("domains_2", 1);
+		commands.countAll("bd_emails_05");
+//		commands.countDistinct("bd_emails_05", "ct_ref");
+		
+		commands.countDomainsWithOneAddress("bd_emails_05", "domains_3");
 		
 		System.exit(0);
 	}

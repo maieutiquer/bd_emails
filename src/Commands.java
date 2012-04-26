@@ -49,6 +49,49 @@ public class Commands {
 		Commands.user = user;
 		Commands.pwd = pwd;
 	}
+
+	public void countDomainsWithOneAddress(String sourceTable, String domainsTable) {
+		Select select = new Select(dbName, user, pwd);
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		int totalDomains = counter.countAll(domainsTable);
+		int result=0;
+		for(int i=0;i<totalDomains;i++){
+			String whereId = "id="+(i+1);
+			String domainName = select.selectField(domainsTable, whereId, "name");
+			String whereDomainName="domaines='"+domainName+"'";
+			int totalEmails = counter.countFromWhere(sourceTable, whereDomainName);
+			if(totalEmails==1){
+				result++;
+			}
+			System.out.println("Total domains in "+sourceTable+
+					" with one address in "+domainsTable+" : "+result);
+		}
+	}
+	
+	/**
+	 * Counts distinct values in a column of a given table. 
+	 * 
+	 * @param table the table to count from
+	 * @param column the column whose distinct values should be counted
+	 */
+	public void countDistinct(String table, String column) {
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		int distinctValues = counter.countDistinct(table, null, column);
+		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
+	}
+	
+	/**
+	 * Counts domains with a given number of users.
+	 * 
+	 * @param table the table with the list of domains
+	 * @param numberOfUsers the number of users to check
+	 */
+	public void countDomainsWithXCompanies(String table, int numberOfCompanies) {
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		String where = "number_of_companies="+numberOfCompanies;
+		int result = counter.countFromWhere(table, where);
+		System.out.println("Number of domains (in table "+table+") with "+numberOfCompanies+" companies: "+result);
+	}
 	
 	/**
 	 * Writes the number of distinct companies of each domain into the domains table.
@@ -57,7 +100,18 @@ public class Commands {
 	 * @param domainsTable the table with a list of all domains
 	 */
 	public void updateDomainCompaniesNumber(String sourceTable, String domainsTable){
-		
+		Select select = new Select(dbName, user, pwd);
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Modify modify = new Modify(dbName, user, pwd);
+		int totalDomains = counter.countAll(domainsTable);
+		for(int i=0;i<totalDomains;i++){
+			String whereId = "id="+(i+1);
+			String domainName = select.selectField(domainsTable, whereId, "name");
+			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
+			String whereDomainName="domaines='"+domainName+"'";
+			int totalUsers = counter.countDistinct(sourceTable, whereDomainName, "cl_ref");
+			modify.modifyWhere(domainsTable, whereId, "number_of_companies", Integer.toString(totalUsers));
+		}
 	}
 	
 	/**
@@ -87,7 +141,7 @@ public class Commands {
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
 			String domainName = select.selectField(domainsTable, whereId, "name");
-			domainName = domainName.replaceAll("'", "\\\\'");
+			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
 			modify.modifyWhere(domainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
@@ -247,7 +301,7 @@ public class Commands {
 	public void showColumnNames(String table){
 		Select select = new Select(dbName, user, pwd);
 		String[] columnsList = select.getColumnsAsArray(table);
-		System.out.println("Total number of columns: " + (columnsList.length-1));
+		System.out.println("Total number of columns in "+table+" : " + (columnsList.length-1));
 		for (int i=1;i<columnsList.length;i++){
 			System.out.println("Column " + i + " : " + columnsList[i]);
 		}
