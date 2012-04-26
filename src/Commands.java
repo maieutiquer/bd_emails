@@ -50,6 +50,28 @@ public class Commands {
 		Commands.pwd = pwd;
 	}
 
+	/**
+	 * Writes the number of users of each domain into the domains table.
+	 * 
+	 * @param sourceTable  the table with a list of all users
+	 * @param ispDomainsTable the table with a list of all domains
+	 */
+	public void updateIspDomainUsersNumber(String sourceTable, String ispDomainsTable) {
+		Select select = new Select(dbName, user, pwd);
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Modify modify = new Modify(dbName, user, pwd);
+		int totalDomains = counter.countAll(ispDomainsTable);
+		for(int i=0;i<totalDomains;i++){
+			String whereId = "id="+(i+1);
+			String domainName = select.selectField(ispDomainsTable, whereId, "name");
+			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
+			String whereDomainName="domaines='"+domainName+"'";
+			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
+			modify.modifyWhere(ispDomainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
+		}
+		
+	}
+	
 	public void countDomainsWithOneAddress(String sourceTable, String domainsTable) {
 		Select select = new Select(dbName, user, pwd);
 		RowCounter counter = new RowCounter(dbName, user, pwd);
@@ -58,14 +80,15 @@ public class Commands {
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
 			String domainName = select.selectField(domainsTable, whereId, "name");
+			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalEmails = counter.countFromWhere(sourceTable, whereDomainName);
 			if(totalEmails==1){
 				result++;
 			}
-			System.out.println("Total domains in "+sourceTable+
-					" with one address in "+domainsTable+" : "+result);
 		}
+		System.out.println("Total domains in "+domainsTable+
+				" with one address in "+sourceTable+" : "+result);
 	}
 	
 	/**
