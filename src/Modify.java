@@ -31,7 +31,7 @@ public class Modify extends DataAccess {
 		try{
 			String myStatement = "UPDATE "+table+" SET "+column+"="+value+" WHERE "+where+";";
 			statement = con.prepareStatement(myStatement);
-			result = statement.executeQuery();
+			statement.executeUpdate();
 		}catch(SQLException s){
 			s.printStackTrace();
 		}

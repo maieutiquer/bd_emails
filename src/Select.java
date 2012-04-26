@@ -38,10 +38,11 @@ public class Select extends DataAccess {
         String field=null;
         openConnection();
         try{
-        	String myStatement = "SELECT "+column+" WHERE "+where+";";
+        	String myStatement = "SELECT "+column+" FROM "+table+" WHERE "+where+";";
 			statement = con.prepareStatement(myStatement);
 			result = statement.executeQuery();
-			field = result.getString(0);
+			result.next();
+			field = result.getString(1);
         }catch(SQLException s){
 			s.printStackTrace();
         }finally{
