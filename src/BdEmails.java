@@ -59,11 +59,11 @@ public class BdEmails {
 //		commands.countDomainsWithXCompanies("domains_3", 0);
 //		commands.countDomainsWithXCompanies("domains_3", 1);
 		
-//		commands.countAll("bd_emails_05");
+		commands.countAll("bd_emails_05");
 //		commands.countDistinct("bd_emails_05", "ct_ref");
 //		commands.countDomainsWithOneAddress("bd_emails_05", "domains_3");
 		
-		commands.updateIspDomainUsersNumber("bd_emails_05", "isp_domains_2");
+//		commands.updateIspDomainUsersNumber("bd_emails_05", "isp_domains_2");
 		
 		System.exit(0);
 	}
