@@ -94,33 +94,88 @@ public class Select extends DataAccess {
 	}
 	
 	//under development
-	public String[] selectValuesFromWhere(String table, String where) {
-        String[] valuesList = null; //index 0 shows column number
-        openConnection();
-		try{
-			String myStatement = "SELECT * FROM " + table;
-			
-			if (where=="") {
-				statement = con.prepareStatement(myStatement);
+	public int[] selectIntFromWhere(String column, String table, String where) {
+		int field[] = null;
+		int totalRows = -1;
+		openConnection();
+        try{
+        	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
 			}else{
-				statement = con.prepareStatement(myStatement + " WHERE " + where); 
+				statement = con.prepareStatement(myCountStatement);
 			}
 			result = statement.executeQuery();
+			while (result.next()) {
+        		totalRows=result.getInt("COUNT("+column+")");                              
+			}
+			field = new int[totalRows];
 			
-			int totalColumns = getTotalColumns(table);
-			valuesList = new String[totalColumns+1];
-			while(result.next()){
-				for (int i=1; i<totalColumns;i++) {
-					valuesList[i] = result.getString(i+1);
-				}
+			String mySelectStatement = "SELECT "+column+" FROM "+table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
+			}else{
+				statement = con.prepareStatement(myCountStatement);
+			}
+			statement = con.prepareStatement(mySelectStatement);
+			result = statement.executeQuery();
+			int i=0;
+			while(i<totalRows){ 
+				result.next();
+				field[i] = result.getInt(1);
+				i++;
 			}
 			
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}finally{
-			closeConnection();
-		}
-		return valuesList;
+					//= result.getString(1);
+        }catch(SQLException s){
+			s.printStackTrace();
+        }finally{
+        	closeConnection();
+        }
+
+		return field;
+	}
+	
+	public String[] selectStringFromWhere(String column, String table, String where) {
+		String field[] = null;
+		int totalRows = -1;
+		openConnection();
+        try{
+        	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
+			}else{
+				statement = con.prepareStatement(myCountStatement);
+			}
+			result = statement.executeQuery();
+			while (result.next()) {
+        		totalRows=result.getInt("COUNT("+column+")");                              
+			}
+			field = new String[totalRows];
+			
+			String mySelectStatement = "SELECT "+column+" FROM "+table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
+			}else{
+				statement = con.prepareStatement(myCountStatement);
+			}
+			statement = con.prepareStatement(mySelectStatement);
+			result = statement.executeQuery();
+			int i=0;
+			while(i<totalRows){ 
+				result.next();
+				field[i] = result.getString(1);
+				i++;
+			}
+			
+					//= result.getString(1);
+        }catch(SQLException s){
+			s.printStackTrace();
+        }finally{
+        	closeConnection();
+        }
+
+		return field;
 	}
 	
 	/**

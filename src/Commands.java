@@ -56,28 +56,41 @@ public class Commands {
 	public void createMoreClref(String sourceTable, String clrefDomainsTable) {
 		Select select = new Select(dbName, user, pwd);
 		RowCounter counter = new RowCounter(dbName, user, pwd);
-		Modify modify = new Modify(dbName, user, pwd);
+		InsertRows insert = new InsertRows(dbName, user, pwd);
 		int totalClref = counter.countDistinct("cl_ref", sourceTable, null);
-		int[] companies = select.selectDistinct("cl_ref", sourceTable, null);
+		int[] companies = select.selectIntFromWhere("cl_ref", sourceTable, null);
+		String[] domains = select.selectStringFromWhere("domaines", sourceTable, null);
 		
-		System.out.println("Total distinct cl_ref in table "+sourceTable+" : "+companies.length);
+		System.out.println("Total cl_ref entries in table "+sourceTable+" : "+companies.length);
+		System.out.println("Total domaines entries in table "+sourceTable+" : "+domains.length);
 		
-		Set<Integer> set = new HashSet<Integer>();
-		 
+		if (duplicates(companies)) {
+			System.out.println("There are some duplicate cl_refs.");
+		}else{
+			System.out.println("There are not any duplicate cl_refs.");
+		}
+		
+		Set<Integer> companiesSet = new HashSet<Integer>();
+		Set<String> domainsSet = new HashSet<String>();
+		int insertedRows = 0;
 	    for(int i=0; i < companies.length; i++){
-	      if(set.contains(companies[i])){
-	        System.out.println("Duplicate string found at index " + i);
+	      if(companiesSet.contains(companies[i])){
+//	    	  System.out.println("Duplicate string found : " + companies[i]);
+	    	  if(!(domainsSet.contains(domains[i]))) {
+	    		  domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
+	    		  insert.insertRow(clrefDomainsTable, "`nom_domaine`", "'"+domains[i]+"'");
+	    		  domainsSet.add(domains[i]);
+	    		  insertedRows++;
+	    	  }
+	        
 	      } else {
-	        set.add(companies[i]);
+	    	  companiesSet.add(companies[i]);
+	    	  if(!(domainsSet.contains(domains[i]))){
+	    		  domainsSet.add(domains[i]);
+	    	  }
 	      }
 	    }
-	    
-		if (duplicates(companies)) {
-			System.out.println("There are duplicates.");
-			
-//			for(int i=0; i<companies.length;i++){
-//			}
-		}
+	    System.out.println("Inserted rows : "+insertedRows);
 	}
 	
 	public static boolean duplicates(final int[] myArray)
