@@ -1,4 +1,7 @@
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Has different commands that should be called from the main method.
  * 
@@ -49,7 +52,43 @@ public class Commands {
 		Commands.user = user;
 		Commands.pwd = pwd;
 	}
-
+	
+	public void createMoreClref(String sourceTable, String clrefDomainsTable) {
+		Select select = new Select(dbName, user, pwd);
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Modify modify = new Modify(dbName, user, pwd);
+		int totalClref = counter.countDistinct("cl_ref", sourceTable, null);
+		int[] companies = select.selectDistinct("cl_ref", sourceTable, null);
+		
+		System.out.println("Total distinct cl_ref in table "+sourceTable+" : "+companies.length);
+		
+		Set<Integer> set = new HashSet<Integer>();
+		 
+	    for(int i=0; i < companies.length; i++){
+	      if(set.contains(companies[i])){
+	        System.out.println("Duplicate string found at index " + i);
+	      } else {
+	        set.add(companies[i]);
+	      }
+	    }
+	    
+		if (duplicates(companies)) {
+			System.out.println("There are duplicates.");
+			
+//			for(int i=0; i<companies.length;i++){
+//			}
+		}
+	}
+	
+	public static boolean duplicates(final int[] myArray)
+	{
+	   final int MAXZIP = 99999;
+	   boolean[] bitmap = new boolean[MAXZIP+1];  // Java guarantees init to false
+	   for (int item : myArray)
+	     if (!(bitmap[item] ^= true)) return true;
+	   return false;
+	}
+	
 	/**
 	 * Writes the number of users of each domain into the domains table.
 	 * 
@@ -61,9 +100,10 @@ public class Commands {
 		RowCounter counter = new RowCounter(dbName, user, pwd);
 		Modify modify = new Modify(dbName, user, pwd);
 		int totalDomains = counter.countAll(ispDomainsTable);
+		
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
-			String domainName = select.selectField(ispDomainsTable, whereId, "name");
+			String domainName = select.selectField("name", ispDomainsTable, whereId);
 			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
@@ -79,7 +119,7 @@ public class Commands {
 		int result=0;
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
-			String domainName = select.selectField(domainsTable, whereId, "name");
+			String domainName = select.selectField("name", domainsTable, whereId);
 			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalEmails = counter.countFromWhere(sourceTable, whereDomainName);
@@ -99,7 +139,7 @@ public class Commands {
 	 */
 	public void countDistinct(String table, String column) {
 		RowCounter counter = new RowCounter(dbName, user, pwd);
-		int distinctValues = counter.countDistinct(table, null, column);
+		int distinctValues = counter.countDistinct(column, table, null);
 		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
 	}
 	
@@ -129,10 +169,10 @@ public class Commands {
 		int totalDomains = counter.countAll(domainsTable);
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
-			String domainName = select.selectField(domainsTable, whereId, "name");
+			String domainName = select.selectField("name", domainsTable, whereId);
 			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
-			int totalUsers = counter.countDistinct(sourceTable, whereDomainName, "cl_ref");
+			int totalUsers = counter.countDistinct("cl_ref", sourceTable, whereDomainName);
 			modify.modifyWhere(domainsTable, whereId, "number_of_companies", Integer.toString(totalUsers));
 		}
 	}
@@ -163,7 +203,7 @@ public class Commands {
 		int totalDomains = counter.countAll(domainsTable);
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
-			String domainName = select.selectField(domainsTable, whereId, "name");
+			String domainName = select.selectField("name", domainsTable, whereId);
 			domainName = domainName.replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 			String whereDomainName="domaines='"+domainName+"'";
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);

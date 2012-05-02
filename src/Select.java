@@ -26,19 +26,61 @@ public class Select extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
+	public int[] selectDistinct(String column, String table, String where) {
+		int field[] = null;
+		int totalRows = -1;
+		openConnection();
+        try{
+        	String myCountStatement = "SELECT COUNT(DISTINCT "+column+") FROM " + table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
+			}else{
+				statement = con.prepareStatement(myCountStatement);
+			}
+			result = statement.executeQuery();
+			while (result.next()) {
+        		totalRows=result.getInt("COUNT(DISTINCT "+column+")");                              
+			}
+			field = new int[totalRows];
+			
+			String mySelectStatement = "SELECT DISTINCT "+column+" FROM "+table;
+			if (!(where=="" || where==null)) {
+				statement = con.prepareStatement(myCountStatement + " WHERE " + where);
+			}else{
+				statement = con.prepareStatement(myCountStatement);
+			}
+			statement = con.prepareStatement(mySelectStatement);
+			result = statement.executeQuery();
+			int i=0;
+			while(i<totalRows){ 
+				result.next();
+				field[i] = result.getInt(1);
+				i++;
+			}
+			
+					//= result.getString(1);
+        }catch(SQLException s){
+			s.printStackTrace();
+        }finally{
+        	closeConnection();
+        }
+
+		return field;
+	}
+	
 	/**
 	 * Returns the value of a field from a table. If more than one result, the first one is returned.
-	 * 
+	 * @param column
 	 * @param table
 	 * @param where
-	 * @param column
+	 * 
 	 * @return
 	 */
-	public String selectField(String table, String where, String column){
+	public String selectField(String column, String table, String where){
         String field=null;
         openConnection();
         try{
-        	String myStatement = "SELECT "+column+" FROM "+table+" WHERE "+where+";";
+        	String myStatement = "SELECT "+column+" FROM "+table+" WHERE "+where;
 			statement = con.prepareStatement(myStatement);
 			result = statement.executeQuery();
 			result.next();

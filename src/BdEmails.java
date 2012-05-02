@@ -65,6 +65,8 @@ public class BdEmails {
 		
 //		commands.updateIspDomainUsersNumber("bd_emails_05", "isp_domains_2");
 		
+		commands.createMoreClref("bd_emails_05", "cl_ref_domains");
+		
 		System.exit(0);
 	}
 	

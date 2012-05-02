@@ -55,13 +55,13 @@ public class RowCounter extends DataAccess {
 	
 	/**
 	 * Counts distinct values in a column of a table. Takes a WHERE condition as a parameter.
-	 * 
+	 * @param column
 	 * @param table
 	 * @param where
-	 * @param column
+	 * 
 	 * @return
 	 */
-	public int countDistinct(String table, String where, String column) {
+	public int countDistinct(String column, String table, String where) {
         int totalRows=-1;
         openConnection();
 		try{
