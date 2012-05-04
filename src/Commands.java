@@ -71,11 +71,11 @@ public class Commands {
 		int insertedNewClref = 0;
 	    for(int i=0; i < companies.length; i++){
 	    	if(counter.countFromWhere("isp_domains_2", "`name`='"+domains[i]+"'")==0){
-	    		if((counter.countFromWhere(clrefDomainsTable, "(`cl_ref`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)){
+	    		if(counter.countFromWhere(clrefDomainsTable, "cl_ref="+companies[i])==0){
 	    			domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 	    			insert.insertRow(clrefDomainsTable, "`cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+domains[i]+"'");
 	    			insertedNewClref++;
-	    		} else if (counter.countFromWhere(clrefDomainsTable, "cl_ref="+companies[i])==0) {
+	    		} else if ((counter.countFromWhere(clrefDomainsTable, "(`cl_ref`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)) {
 	    			domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 	    			insert.insertRow(clrefDomainsTable, "`cl_ref`, `cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+companies[i]+"', '"+domains[i]+"'");
 	    		}
