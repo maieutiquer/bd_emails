@@ -70,23 +70,20 @@ public class Commands {
 			System.out.println("There are not any duplicate cl_refs.");
 		}
 		
-		int insertedRows = 0;
+		int insertedNewClref = 0;
 	    for(int i=0; i < companies.length; i++){
-	    	if((counter.countFromWhere(clrefDomainsTable, "(`cl_ref`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)){
-	    		
-	    		domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
-	    		insert.insertRow(clrefDomainsTable, "`cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+domains[i]+"'");
-	    		
-	    		insertedRows++;
-	    		
-	    	} else if (counter.countFromWhere(clrefDomainsTable, "cl_ref="+companies[i])==0) {
-	    		domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
-	    		insert.insertRow(clrefDomainsTable, "`cl_ref`, `cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+companies[i]+"', '"+domains[i]+"'");
-	    		
-	    		
+	    	if(counter.countFromWhere("isp_domains_2", "`name`="+domains[i])==0){
+	    		if((counter.countFromWhere(clrefDomainsTable, "(`cl_ref`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)){
+	    			domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
+	    			insert.insertRow(clrefDomainsTable, "`cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+domains[i]+"'");
+	    			insertedNewClref++;
+	    		} else if (counter.countFromWhere(clrefDomainsTable, "cl_ref="+companies[i])==0) {
+	    			domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
+	    			insert.insertRow(clrefDomainsTable, "`cl_ref`, `cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+companies[i]+"', '"+domains[i]+"'");
+	    		}
 	    	}
 	    }
-	    System.out.println("Inserted new cl_ref : "+insertedRows);
+	    System.out.println("Inserted new cl_ref : "+insertedNewClref);
 	}
 	
 	public static boolean duplicates(final int[] myArray)
