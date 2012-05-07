@@ -63,11 +63,17 @@ public class BdEmails {
 		
 //		commands.updateIspDomainUsersNumber("bd_emails_05", "isp_domains_2");
 		
-		commands.countAll("bd_emails_05");
-		commands.countDistinct("bd_emails_05", "cl_ref");
-		commands.createMoreClref("bd_emails_05", "cl_ref_domains_2");
-		commands.countAll("cl_ref_domains_2");
-		commands.countDistinct("cl_ref_domains_2", "cl_ref_original");
+		commands.countAll("bd_emails_06");
+		commands.countDistinct("bd_emails_06", "cl_ref");
+		commands.createMoreClref("bd_emails_06", "cl_ref_domains_3");
+		commands.countAll("cl_ref_domains_3");
+		commands.countDistinct("cl_ref_domains_3", "cl_ref_original");
+		
+		commands.countDedoubledClients("cl_ref_domains_2");
+		
+//		commands.convertDomainsToLowercase("bd_emails_06");
+//		commands.convertEmailsToLowercase("bd_emails_06");
+//		commands.cleanClrefs("bd_emails_06");
 		
 		System.exit(0);
 	}

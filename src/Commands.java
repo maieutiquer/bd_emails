@@ -1,4 +1,8 @@
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Has different commands that should be called from the main method.
@@ -6,11 +10,9 @@
  * @author Daniel
  *
  */
-public class Commands {
+public class Commands extends DataAccess {
 	
-	private static String dbName; //DB name
-	private static String user; //DB username
-	private static String pwd; //DB password
+	private static final long serialVersionUID = 2448602180321858504L;
 	private static final String emptyGenderCond = 
 			"ct_genre IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')";
 	private static final String emptyFirstnameCond = 
@@ -45,12 +47,90 @@ public class Commands {
 	 * @param pwd the password
 	 */
 	public Commands(String dbName, String user, String pwd) {
-		super();
-		Commands.dbName = dbName;
-		Commands.user = user;
-		Commands.pwd = pwd;
+		super(dbName, user, pwd);
 	}
 	
+	public void cleanClrefs(String table){
+//		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Modify modify = new Modify(dbName, user, pwd);
+		Select select = new Select(dbName, user, pwd);
+		
+		int[] companies = select.selectIntFromWhere("cl_ref", table, null);
+		String[] domains = select.selectStringFromWhere("domaines", table, null);
+		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
+		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
+		modify.openConnection();
+		int count = 0;
+		HashMap<Integer,String> clientMap = new HashMap<Integer,String>();
+		System.out.println("Total entries: "+companies.length);
+		for (int i=0; i<companies.length;i++) {
+			if (!(domains[i].equals("#value!") || Arrays.asList(ispDomains).contains(domains[i]))) {
+				if (clientMap.containsValue(domains[i])) {
+					if (companies[i] != getKeyByValue(clientMap, domains[i])) {
+						modify.modifyWhere(table, "ct_ref="+ct_ref[i], "cl_ref", getKeyByValue(clientMap, domains[i]).toString());
+//						System.out.println("just did modification at: "+ct_ref[i]+", " +
+//								"put at cl_ref: "+getKeyByValue(clientMap, domains[i]));
+						count++;
+					}
+				}else if (!(clientMap.containsKey(companies[i]))) {
+					clientMap.put(companies[i], domains[i]);
+				}
+			}
+		}
+		modify.closeConnection();
+		System.out.println("Number of modifications: "+count);
+	}
+	
+	public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+	    for (Entry<T, E> entry : map.entrySet()) {
+	        if (value.equals(entry.getValue())) {
+	            return entry.getKey();
+	        }
+	    }
+	    return null;
+	}
+	
+	/**
+	 * Converts all emails from a table to lowercase letters.
+	 * 
+	 * @param table the table whose emails to put in lowercase
+	 */
+	public void convertEmailsToLowercase(String table) {
+		Modify modify = new Modify(dbName, user, pwd);
+		modify.convertColumnValuesToLowercase(table, "ct_mail");
+		System.out.println("Converted to minuscule all email values from table "+table);
+	}
+	
+	/**
+	 * Converts all domains from a table to lowercase letters.
+	 * 
+	 * @param table the table whose domains to put in lowercase
+	 */
+	public void convertDomainsToLowercase(String table) {
+		Modify modify = new Modify(dbName, user, pwd);
+		modify.convertColumnValuesToLowercase(table, "domaines");
+		System.out.println("Converted to minuscule all domain values from table "+table);
+	}
+	
+	
+	/**
+	 * Prints the number of dedoubled clients.
+	 * 
+	 * @param table the table with dedoubled clients
+	 */
+	public void countDedoubledClients(String table){
+		RowCounter counter = new RowCounter(dbName, user, pwd);
+		String where="`cl_ref` < 12000";
+		int dedoubled=counter.countDistinct("cl_ref_original", table, where);
+		System.out.println("Number of dedoubled clients: "+dedoubled);
+	}
+	
+	/**
+	 * Fills a new table with cl_ref
+	 * 
+	 * @param sourceTable
+	 * @param clrefDomainsTable
+	 */
 	public void createMoreClref(String sourceTable, String clrefDomainsTable) {
 		Select select = new Select(dbName, user, pwd);
 		RowCounter counter = new RowCounter(dbName, user, pwd);
@@ -62,34 +142,21 @@ public class Commands {
 		System.out.println("Total cl_ref entries in table "+sourceTable+" : "+companies.length);
 		System.out.println("Total domaines entries in table "+sourceTable+" : "+domains.length);
 		
-		if (duplicates(companies)) {
-			System.out.println("There are some duplicate cl_refs.");
-		}else{
-			System.out.println("There are not any duplicate cl_refs.");
-		}
-		
 		int insertedNewClref = 0;
 	    for(int i=0; i < companies.length; i++){
 	    	domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
 	    	if(counter.countFromWhere("isp_domains_2", "`name`='"+domains[i]+"'")==0){
 	    		if(counter.countFromWhere(clrefDomainsTable, "cl_ref_original="+companies[i])==0){
-	    			insert.insertRow(clrefDomainsTable, "`cl_ref`, `cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+companies[i]+"', '"+domains[i]+"'");
-	    		} else if ((counter.countFromWhere(clrefDomainsTable, "(`cl_ref_original`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)) {
+	    			insert.insertRow(clrefDomainsTable, 
+	    					"`cl_ref`, `cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+companies[i]+"', '"+domains[i]+"'");
+	    		} else if ((counter.countFromWhere(clrefDomainsTable, 
+	    				"(`cl_ref_original`='"+companies[i]+"' AND `nom_domaine`='"+domains[i]+"')")==0)) {
 	    			insert.insertRow(clrefDomainsTable, "`cl_ref_original`, `nom_domaine`", "'"+companies[i]+"', '"+domains[i]+"'");
 	    			insertedNewClref++;
 	    		}
 	    	}
 	    }
-	    System.out.println("Inserted new cl_ref : "+insertedNewClref);
-	}
-	
-	public static boolean duplicates(final int[] myArray)
-	{
-	   final int MAXZIP = 99999;
-	   boolean[] bitmap = new boolean[MAXZIP+1];  // Java guarantees init to false
-	   for (int item : myArray)
-	     if (!(bitmap[item] ^= true)) return true;
-	   return false;
+	    System.out.println("Inserted new cl_ref : "+insertedNewClref); 
 	}
 	
 	/**
