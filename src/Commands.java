@@ -50,6 +50,34 @@ public class Commands extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
+	public void copyClientsWithOtherDomains(String sourceTable, String newTable) {
+		CopyTable copy = new CopyTable(dbName, user, pwd);
+		Select select = new Select(dbName, user, pwd);
+		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
+		String ispDomainsString = "";
+		for(int i=0;i<ispDomains.length;i++) {
+			ispDomainsString += "'" + ispDomains[i] + "', ";
+		}
+		String isp = ispDomainsString.substring(0, ispDomainsString.length()-2);
+		
+		String where = "`domaines` NOT IN ("+isp+")";
+		copy.copyTableFromWhere(sourceTable, newTable, where);
+	}
+	
+	public void copyClientsWithIspDomains(String sourceTable, String newTable) {
+		CopyTable copy = new CopyTable(dbName, user, pwd);
+		Select select = new Select(dbName, user, pwd);
+		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
+		String ispDomainsString = "";
+		for(int i=0;i<ispDomains.length;i++) {
+			ispDomainsString += "'" + ispDomains[i] + "', ";
+		}
+		String isp = ispDomainsString.substring(0, ispDomainsString.length()-2);
+		
+		String where = "`domaines` IN ("+isp+")";
+		copy.copyTableFromWhere(sourceTable, newTable, where);
+	}
+	
 	public void cleanClrefs(String table){
 //		RowCounter counter = new RowCounter(dbName, user, pwd);
 		Modify modify = new Modify(dbName, user, pwd);

@@ -44,13 +44,11 @@ public class CopyTable extends DataAccess{
         	}else{
         		statement = con.prepareStatement(myStatement+" WHERE "+where+";");
         	}
-			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 			
 			RowCounter counter = new RowCounter(dbName,user,pwd);
 			System.out.println("Total rows inserted in "+newTable+" : " 
 					+ counter.countFromWhere(newTable, where));
-        	
         }catch(SQLException s){
         	s.printStackTrace();
         }finally{
