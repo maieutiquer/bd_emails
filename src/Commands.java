@@ -41,6 +41,31 @@ public class Commands extends DataAccess {
 	}
 	
 	/**
+	 * Determines the rule for first name in emails 
+	 * and writes it in the corresponding column.
+	 * 
+	 * @param table the table whose rows to process
+	 */
+	public void determineFirstNameRule(String table) {
+		Modify modify = new Modify();
+		Select select = new Select();
+		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
+		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
+		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
+		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
+		String[] userRules = select.selectStringFromWhere("regle_user", table, null);
+		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_prenom", null);
+		int[] ruleIds = select.selectIntFromWhere("id", "regle_prenom", null);
+		for (int i=0; i<emails.length; i++) {
+			int rule=-1;
+			
+			//TODO: process each value in the above arrays to determine the user, -1 for error
+			
+			modify.modifyWhere(table, "ct_ref="+ct_ref[i], "regle_prenom", Integer.toString(rule));
+		}
+	}
+	
+	/**
 	 * Determines the rule for username in emails 
 	 * and writes it in the corresponding column.
 	 * 
@@ -53,10 +78,10 @@ public class Commands extends DataAccess {
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
 		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
-		String[] ruleText = select.selectStringFromWhere("rule", "regle_user", null);
-		int[] ruleId = select.selectIntFromWhere("id", "regle_user", null);
+		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
+		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
 		for (int i=0; i<emails.length; i++) {
-			int rule=0;
+			int rule=-1;
 			
 			//TODO: process each value in the above arrays to determine the user, -1 for error
 			
