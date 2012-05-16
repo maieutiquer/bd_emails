@@ -97,7 +97,7 @@ public class Select extends DataAccess {
 	public int[] selectIntFromWhere(String column, String table, String where) {
 		int field[] = null;
 		int totalRows = -1;
-		openConnection();
+		
         try{
         	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -130,7 +130,7 @@ public class Select extends DataAccess {
         }catch(SQLException s){
 			s.printStackTrace();
         }finally{
-        	closeConnection();
+        	
         }
 
 		return field;
@@ -139,7 +139,7 @@ public class Select extends DataAccess {
 	public String[] selectStringFromWhere(String column, String table, String where) {
 		String field[] = null;
 		int totalRows = -1;
-		openConnection();
+		
         try{
         	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -172,7 +172,7 @@ public class Select extends DataAccess {
         }catch(SQLException s){
 			s.printStackTrace();
         }finally{
-        	closeConnection();
+        	
         }
 
 		return field;

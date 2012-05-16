@@ -1,9 +1,4 @@
 
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
@@ -61,31 +56,4 @@ public class Modify extends DataAccess {
 		
 	}
 	
-	/**
-	 * Tries opening a new connection.
-	 */
-	public void openConnection() {
-		try{
-			con = DriverManager.getConnection(dbName, user, pwd);
-		}catch(SQLException s){
-			System.out.println("Connection error!");
-			s.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Tries closing the current connection.
-	 */
-	public void closeConnection() {
-		try {
-			if (!(con.isClosed())) {
-				con.close();
-			}else{
-				// TODO: Connection already closed
-			}
-		}catch(SQLException e) {
-			System.out.println("No opened connection!");
-	        e.printStackTrace();
-	    }
-	}
 }

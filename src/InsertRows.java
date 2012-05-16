@@ -32,7 +32,6 @@ public class InsertRows extends DataAccess {
 	 * @param newColumns
 	 */
 	public void insertDistinct(String sourceTable, String newTable, String sourceColumns, String newColumns){
-		openConnection();
         try{
         	String myStatement = 
         			"INSERT INTO "+newTable+" ("+newColumns+") SELECT DISTINCT("+sourceColumns+") FROM "+sourceTable+";";
@@ -46,7 +45,7 @@ public class InsertRows extends DataAccess {
         }catch(SQLException s){
         	s.printStackTrace();
         }finally{
-        	closeConnection();
+        	
         }
 	}
 	
@@ -61,7 +60,6 @@ public class InsertRows extends DataAccess {
 		
         String[] valuesList = null; //index 0 shows column number
         int numberOfErrors=0;
-        openConnection();
         
 		try{
 			String myStatement = "SELECT * FROM " + fromTable;
@@ -112,7 +110,7 @@ public class InsertRows extends DataAccess {
 			System.out.println("Error!");
 			e.printStackTrace();
 		}finally{
-			closeConnection();
+			
 		}
 		System.out.println("Number of errors: " + numberOfErrors);
 		System.out.println("Values: " + val);
@@ -127,7 +125,7 @@ public class InsertRows extends DataAccess {
 	 * @param values a list of values, corresponding to the columns, in format: 'val1', val2', 'val3'
 	 */
 	public int insertRow(String table, String columns, String values) {
-		openConnection();
+		
 		try{
 			String myStatement = "INSERT INTO `"+table+"` ("+columns+") VALUES ("+values+");";
 			statement = con.prepareStatement(myStatement);
@@ -139,7 +137,7 @@ public class InsertRows extends DataAccess {
 			e.printStackTrace();
 			return 1;
 		}finally{
-			closeConnection();
+			
 		}
 		return 0;
 	}
