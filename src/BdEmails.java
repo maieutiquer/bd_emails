@@ -26,6 +26,7 @@ public class BdEmails {
 	public static void main(String[] args) {
 		
 		Commands commands = new Commands(url+dbName, user, pwd);
+		commands.openConnection();
 		
 //		commands.showColumnNames("bd_emails_03");
 		

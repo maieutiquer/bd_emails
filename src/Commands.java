@@ -58,8 +58,6 @@ public class Commands extends DataAccess {
 		
 		String where = "`domaines` NOT IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
-		copy.closeConnection();
-		select.closeConnection();
 	}
 	
 	/**
@@ -80,8 +78,6 @@ public class Commands extends DataAccess {
 		
 		String where = "`domaines` IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
-		select.closeConnection();
-		copy.closeConnection();
 	}
 	
 	/**
@@ -115,8 +111,6 @@ public class Commands extends DataAccess {
 			}
 		}
 		System.out.println("Number of modifications: "+count);
-		select.closeConnection();
-		modify.closeConnection();
 	}
 	
 	/**
@@ -144,7 +138,6 @@ public class Commands extends DataAccess {
 		Modify modify = new Modify(dbName, user, pwd);
 		modify.convertColumnValuesToLowercase(table, "ct_mail");
 		System.out.println("Converted to minuscule all email values from table "+table);
-		modify.closeConnection();
 	}
 	
 	/**
@@ -156,7 +149,6 @@ public class Commands extends DataAccess {
 		Modify modify = new Modify(dbName, user, pwd);
 		modify.convertColumnValuesToLowercase(table, "domaines");
 		System.out.println("Converted to minuscule all domain values from table "+table);
-		modify.closeConnection();
 	}
 	
 	
@@ -170,7 +162,6 @@ public class Commands extends DataAccess {
 		String where="`cl_ref` < 12000";
 		int dedoubled=counter.countDistinct("cl_ref_original", table, where);
 		System.out.println("Number of dedoubled clients: "+dedoubled);
-		counter.closeConnection();
 	}
 	
 	/**
@@ -205,9 +196,6 @@ public class Commands extends DataAccess {
 	    	}
 	    }
 	    System.out.println("Inserted new cl_ref : "+insertedNewClref);
-	    select.closeConnection();
-	    counter.closeConnection();
-	    insert.closeConnection();
 	}
 	
 	/**
@@ -230,9 +218,6 @@ public class Commands extends DataAccess {
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
 			modify.modifyWhere(ispDomainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
 		}
-		select.closeConnection();
-		counter.closeConnection();
-		modify.closeConnection();
 	}
 	
 	public void countDomainsWithOneAddress(String sourceTable, String domainsTable) {
@@ -252,8 +237,6 @@ public class Commands extends DataAccess {
 		}
 		System.out.println("Total domains in "+domainsTable+
 				" with one address in "+sourceTable+" : "+result);
-		select.closeConnection();
-		counter.closeConnection();
 	}
 	
 	/**
@@ -266,7 +249,6 @@ public class Commands extends DataAccess {
 		RowCounter counter = new RowCounter(dbName, user, pwd);
 		int distinctValues = counter.countDistinct(column, table, null);
 		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
-		counter.closeConnection();
 	}
 	
 	/**
@@ -280,7 +262,6 @@ public class Commands extends DataAccess {
 		String where = "number_of_companies="+numberOfCompanies;
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfCompanies+" companies: "+result);
-		counter.closeConnection();
 	}
 	
 	/**
@@ -302,9 +283,6 @@ public class Commands extends DataAccess {
 			int totalUsers = counter.countDistinct("cl_ref", sourceTable, whereDomainName);
 			modify.modifyWhere(domainsTable, whereId, "number_of_companies", Integer.toString(totalUsers));
 		}
-		select.closeConnection();
-		counter.closeConnection();
-		modify.closeConnection();
 	}
 	
 	/**
@@ -318,7 +296,6 @@ public class Commands extends DataAccess {
 		String where = "number_of_users="+numberOfUsers;
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfUsers+" users: "+result);
-		counter.closeConnection();
 	}
 	
 	/**
@@ -340,15 +317,11 @@ public class Commands extends DataAccess {
 			int totalUsers = counter.countFromWhere(sourceTable, whereDomainName);
 			modify.modifyWhere(domainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
 		}
-		select.closeConnection();
-		counter.closeConnection();
-		modify.closeConnection();
 	}
 	
 	public void cloneTable(String source, String cloned){
 		CopyTable copy = new CopyTable(dbName, user, pwd);
 		copy.copyTableFromWhere(source, cloned, null);
-		copy.closeConnection();
 	}
 	
 	/**
@@ -360,7 +333,6 @@ public class Commands extends DataAccess {
 	public void insertDistinctDomains(String sourceTable, String newTable){
 		InsertRows insert = new InsertRows(dbName, user, pwd);
 		insert.insertDistinct(sourceTable, newTable, "domaines", "name");
-		insert.closeConnection();
 	}
 	
 	/**
@@ -374,7 +346,6 @@ public class Commands extends DataAccess {
 		String where = emptyRowsCond; 
 		CopyTable copy = new CopyTable(dbName, user, pwd);
 		copy.copyTableFromWhere(sourceTable, newTable, where);
-		copy.closeConnection();
 	}
 	
 	/**
@@ -386,7 +357,6 @@ public class Commands extends DataAccess {
 		RowCounter counter = new RowCounter(dbName,user,pwd);
 		System.out.println("Total rows in "+table+" : " 
 				+ counter.countAll(table));
-		counter.closeConnection();
 	}
 	
 	/**
@@ -402,7 +372,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total rows with empty gender in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 	
 	/**
@@ -418,7 +387,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total rows with empty email in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 	
 	/**
@@ -434,7 +402,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total rows with empty last name in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 	
 	/**
@@ -450,7 +417,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total rows with empty first name in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 
 	/**
@@ -469,7 +435,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total empty rows in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 
 	/**
@@ -488,7 +453,6 @@ public class Commands extends DataAccess {
 		
 		System.out.println("Total non-empty rows in "+table+" : " 
 				+ counter.countFromWhere(table, where));
-		counter.closeConnection();
 	}
 	
 	/**
@@ -503,7 +467,6 @@ public class Commands extends DataAccess {
 		for (int i=1;i<columnsList.length;i++){
 			System.out.println("Column " + i + " : " + columnsList[i]);
 		}
-		select.closeConnection();
 	}
 	
 	/**
@@ -520,7 +483,6 @@ public class Commands extends DataAccess {
 		
 		CopyTable copy = new CopyTable(dbName, user, pwd);
 		copy.copyTableFromWhere(fromTable, toTable, where);
-		copy.closeConnection();
 	}
 	
 	/**
@@ -537,7 +499,7 @@ public class Commands extends DataAccess {
 		
 		InsertRows insert = new InsertRows(dbName, user, pwd);
 		insert.copyRowsFromWhere(fromTable, toTable, where);
-		insert.closeConnection();
 	}
+	
 	
 }

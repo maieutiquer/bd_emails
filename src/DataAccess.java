@@ -17,7 +17,7 @@ public class DataAccess extends SQLException {
 	protected String dbName;
 	protected String user;
 	protected String pwd;
-	protected Connection con = null; //opens connection
+	protected static Connection con = null; //opens connection
 	protected PreparedStatement statement = null; //query statement
 	protected ResultSet result = null; //manages results
 	
@@ -33,7 +33,6 @@ public class DataAccess extends SQLException {
 		this.dbName = dbName;
 		this.user = user;
 		this.pwd = pwd;
-		openConnection();
 	}
 	
 	/**
