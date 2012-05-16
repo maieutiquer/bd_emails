@@ -26,7 +26,15 @@ public class Select extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
-	public int[] selectDistinct(String column, String table, String where) {
+	/**
+	 * Selects distinct int values from a column, satisfying a condition.
+	 * 
+	 * @param column the column to select distinct values from
+	 * @param table the table to get the column from
+	 * @param where the condition
+	 * @return an array of distinct integer values 
+	 */
+	public int[] selectDistinctInt(String column, String table, String where) {
 		int field[] = null;
 		int totalRows = -1;
         try{
@@ -63,12 +71,13 @@ public class Select extends DataAccess {
 	}
 	
 	/**
-	 * Returns the value of a field from a table. If more than one result, the first one is returned.
-	 * @param column
-	 * @param table
-	 * @param where
+	 * Returns the String value of a field from a table. If more than one result, the first one is returned.
 	 * 
-	 * @return
+	 * @param column the column to select from
+	 * @param table the table whose column to search
+	 * @param where the condition
+	 * 
+	 * @return a String value of the field
 	 */
 	public String selectField(String column, String table, String where){
         String field=null;
@@ -84,7 +93,15 @@ public class Select extends DataAccess {
 		return field;
 	}
 	
-	//under development
+	/**
+	 * Returns an array of integer values of fields from a table, satisfying a condition.
+	 * 
+	 * @param column the column to select from
+	 * @param table the table whose column to search
+	 * @param where the condition
+	 * 
+	 * @return an int array with field values
+	 */
 	public int[] selectIntFromWhere(String column, String table, String where) {
 		int field[] = null;
 		int totalRows = -1;
@@ -121,6 +138,15 @@ public class Select extends DataAccess {
 		return field;
 	}
 	
+	/**
+	 * Returns an array of String values of fields from a table, satisfying a condition.
+	 * 
+	 * @param column the column to select from
+	 * @param table the table whose column to search
+	 * @param where the condition
+	 * 
+	 * @return a String array with field values
+	 */
 	public String[] selectStringFromWhere(String column, String table, String where) {
 		String field[] = null;
 		int totalRows = -1;

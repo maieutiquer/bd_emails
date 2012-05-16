@@ -23,12 +23,11 @@ public class RowCounter extends DataAccess {
 	}
 	
 	/**
-	 * Counts rows, satisfying certain conditions, from a given table.
+	 * Counts rows, satisfying certain condition, from a given table.
 	 * 
-	 * @param where
+	 * @param where the condition
 	 * 
-	 * @return
-	 * @throws Exception
+	 * @return the number of values that satisfy the condition
 	 */
 	public int countFromWhere(String table, String where)  {
         int totalRows=-1;
@@ -51,11 +50,11 @@ public class RowCounter extends DataAccess {
 	
 	/**
 	 * Counts distinct values in a column of a table. Takes a WHERE condition as a parameter.
-	 * @param column
-	 * @param table
-	 * @param where
 	 * 
-	 * @return
+	 * @param column the column to get distinct values from
+	 * @param table the table to count from
+	 * @param where the condition
+	 * @return the number of distinct values in the column, given the condition
 	 */
 	public int countDistinct(String column, String table, String where) {
         int totalRows=-1;

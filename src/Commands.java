@@ -49,10 +49,19 @@ public class Commands extends DataAccess {
 	public void determineUserRule(String table) {
 		Modify modify = new Modify();
 		Select select = new Select();
-		String[] firstName = select.selectStringFromWhere("ct_prenom", table, null);
-		String[] lastName = select.selectStringFromWhere("ct_nom", table, null);
-		String[] email = select.selectStringFromWhere("ct_mail", table, null);
-		
+		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
+		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
+		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
+		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
+		String[] ruleText = select.selectStringFromWhere("rule", "regle_user", null);
+		int[] ruleId = select.selectIntFromWhere("id", "regle_user", null);
+		for (int i=0; i<emails.length; i++) {
+			int rule=0;
+			
+			//TODO: process each value in the above arrays to determine the user, -1 for error
+			
+			modify.modifyWhere(table, "ct_ref="+ct_ref[i], "regle_user", Integer.toString(rule));
+		}
 	}
 	
 	/**
@@ -70,7 +79,6 @@ public class Commands extends DataAccess {
 			ispDomainsString += "'" + ispDomains[i] + "', ";
 		}
 		String isp = ispDomainsString.substring(0, ispDomainsString.length()-2);
-		
 		String where = "`domaines` NOT IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
@@ -90,10 +98,8 @@ public class Commands extends DataAccess {
 			ispDomainsString += "'" + ispDomains[i] + "', ";
 		}
 		String isp = ispDomainsString.substring(0, ispDomainsString.length()-2);
-		
 		String where = "`domaines` IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
-		
 	}
 	
 	/**
