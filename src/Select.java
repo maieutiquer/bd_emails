@@ -29,7 +29,6 @@ public class Select extends DataAccess {
 	public int[] selectDistinct(String column, String table, String where) {
 		int field[] = null;
 		int totalRows = -1;
-		openConnection();
         try{
         	String myCountStatement = "SELECT COUNT(DISTINCT "+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -57,14 +56,9 @@ public class Select extends DataAccess {
 				field[i] = result.getInt(1);
 				i++;
 			}
-			
-					//= result.getString(1);
         }catch(SQLException s){
 			s.printStackTrace();
-        }finally{
-        	closeConnection();
         }
-
 		return field;
 	}
 	
@@ -78,7 +72,6 @@ public class Select extends DataAccess {
 	 */
 	public String selectField(String column, String table, String where){
         String field=null;
-        openConnection();
         try{
         	String myStatement = "SELECT "+column+" FROM "+table+" WHERE "+where;
 			statement = con.prepareStatement(myStatement);
@@ -87,8 +80,6 @@ public class Select extends DataAccess {
 			field = result.getString(1);
         }catch(SQLException s){
 			s.printStackTrace();
-        }finally{
-        	closeConnection();
         }
 		return field;
 	}
@@ -97,7 +88,6 @@ public class Select extends DataAccess {
 	public int[] selectIntFromWhere(String column, String table, String where) {
 		int field[] = null;
 		int totalRows = -1;
-		
         try{
         	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -125,21 +115,15 @@ public class Select extends DataAccess {
 				field[i] = result.getInt(1);
 				i++;
 			}
-			
-					//= result.getString(1);
         }catch(SQLException s){
 			s.printStackTrace();
-        }finally{
-        	
         }
-
 		return field;
 	}
 	
 	public String[] selectStringFromWhere(String column, String table, String where) {
 		String field[] = null;
 		int totalRows = -1;
-		
         try{
         	String myCountStatement = "SELECT COUNT("+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -167,14 +151,9 @@ public class Select extends DataAccess {
 				field[i] = result.getString(1);
 				i++;
 			}
-			
-					//= result.getString(1);
         }catch(SQLException s){
 			s.printStackTrace();
-        }finally{
-        	
         }
-
 		return field;
 	}
 	
@@ -186,7 +165,6 @@ public class Select extends DataAccess {
 	 */
 	public int getTotalColumns(String table) {
         int numberOfColumns = 0;
-        openConnection();
         try{
         	statement = con.prepareStatement("SELECT * FROM " + table);
         	result = statement.executeQuery();
@@ -194,8 +172,6 @@ public class Select extends DataAccess {
         	numberOfColumns = rsMetaData.getColumnCount();
         }catch(SQLException s){
         	s.printStackTrace();
-        }finally{
-        	closeConnection();
         }
         return numberOfColumns;
 	}
@@ -208,7 +184,6 @@ public class Select extends DataAccess {
 	 */
 	public String[] getColumnsAsArray(String table) {
         String[] columnNames = null; //list of column names as an array of strings
-        openConnection();
         try{
         	statement = con.prepareStatement("SELECT * FROM " + table);
         	result = statement.executeQuery();
@@ -224,8 +199,6 @@ public class Select extends DataAccess {
         	}
         }catch(SQLException s){
         	s.printStackTrace();
-        }finally{
-        	closeConnection();
         }
         return columnNames;
 	}

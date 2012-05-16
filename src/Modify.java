@@ -23,15 +23,12 @@ public class Modify extends DataAccess {
 	}
 	
 	public void convertColumnValuesToLowercase(String table, String column) {
-		openConnection();
 		try{
 			String myStatement = "UPDATE "+table+" SET "+column+" = lower("+column+")";
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 		}catch(SQLException s){
 			s.printStackTrace();
-		}finally{
-			closeConnection();
 		}
 	}
 	
@@ -45,7 +42,6 @@ public class Modify extends DataAccess {
 	 * @param value
 	 */
 	public void modifyWhere(String table, String where, String column, String value) {
-		
 		try{
 			String myStatement = "UPDATE "+table+" SET "+column+"="+value+" WHERE "+where+";";
 			statement = con.prepareStatement(myStatement);
@@ -53,7 +49,6 @@ public class Modify extends DataAccess {
 		}catch(SQLException s){
 			s.printStackTrace();
 		}
-		
 	}
 	
 }

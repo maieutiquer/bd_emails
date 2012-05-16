@@ -44,8 +44,6 @@ public class InsertRows extends DataAccess {
         	
         }catch(SQLException s){
         	s.printStackTrace();
-        }finally{
-        	
         }
 	}
 	
@@ -100,17 +98,14 @@ public class InsertRows extends DataAccess {
 					e.printStackTrace();
 				}
 				
-				//String myInsertStatement = "INSERT INTO `"+toTable+"` ("+columns+") VALUES ("+values+");";
-				//statement = con.prepareStatement(myInsertStatement);
-				//this.val += statement.executeUpdate();
+//				String myInsertStatement = "INSERT INTO `"+toTable+"` ("+columns+") VALUES ("+values+");";
+//				statement = con.prepareStatement(myInsertStatement);
+//				this.val += statement.executeUpdate();
 			}
-			
 		}catch(SQLException e) {
 			numberOfErrors++;
 			System.out.println("Error!");
 			e.printStackTrace();
-		}finally{
-			
 		}
 		System.out.println("Number of errors: " + numberOfErrors);
 		System.out.println("Values: " + val);
@@ -125,19 +120,13 @@ public class InsertRows extends DataAccess {
 	 * @param values a list of values, corresponding to the columns, in format: 'val1', val2', 'val3'
 	 */
 	public int insertRow(String table, String columns, String values) {
-		
 		try{
 			String myStatement = "INSERT INTO `"+table+"` ("+columns+") VALUES ("+values+");";
 			statement = con.prepareStatement(myStatement);
-			
 			this.val += statement.executeUpdate();
-			//System.out.println("Success");
-			//System.out.println(result.getWarnings());
 		}catch(SQLException e) {
 			e.printStackTrace();
 			return 1;
-		}finally{
-			
 		}
 		return 0;
 	}

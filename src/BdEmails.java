@@ -25,9 +25,6 @@ public class BdEmails {
 	 */
 	public static void main(String[] args) {
 		
-//		Accessing driver from the JAR file
-//		Class.forName("com.mysql.jdbc.Driver");
-		
 		Commands commands = new Commands(url+dbName, user, pwd);
 		
 //		commands.showColumnNames("bd_emails_03");
@@ -80,8 +77,9 @@ public class BdEmails {
 //		commands.countAll("bd_emails_05_isp");
 		commands.countAll("bd_emails_05_autres");
 		
+		
+		commands.closeConnection();
 		System.exit(0);
 	}
-	
 	
 }

@@ -33,6 +33,7 @@ public class DataAccess extends SQLException {
 		this.dbName = dbName;
 		this.user = user;
 		this.pwd = pwd;
+		openConnection();
 	}
 	
 	/**
@@ -65,7 +66,7 @@ public class DataAccess extends SQLException {
 			if (!(con.isClosed())) {
 				con.close();
 			}else{
-				// TODO: Connection already closed
+				System.out.println("Connection already closed");
 			}
 		}catch(SQLException e) {
 			System.out.println("No opened connection!");

@@ -32,7 +32,6 @@ public class RowCounter extends DataAccess {
 	 */
 	public int countFromWhere(String table, String where)  {
         int totalRows=-1;
-        
 		try{
 			String myStatement = "SELECT COUNT(*) FROM " + table;
 			if (where=="" || where==null) {
@@ -40,15 +39,12 @@ public class RowCounter extends DataAccess {
 			}else{
 				statement = con.prepareStatement(myStatement + " WHERE " + where); 
 			}
-			
 			result = statement.executeQuery();
 			while(result.next()){
         		totalRows=result.getInt("COUNT(*)");                              
                }
 		}catch(SQLException e) {
 			e.printStackTrace();
-		}finally{
-			
 		}
 		return totalRows;
 	}
@@ -63,7 +59,6 @@ public class RowCounter extends DataAccess {
 	 */
 	public int countDistinct(String column, String table, String where) {
         int totalRows=-1;
-        openConnection();
 		try{
 			String myStatement = "SELECT COUNT(DISTINCT "+column+") FROM " + table;
 			if (!(where=="" || where==null)) {
@@ -77,8 +72,6 @@ public class RowCounter extends DataAccess {
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
-		}finally{
-			closeConnection();
 		}
 		return totalRows;
 	}
@@ -91,7 +84,6 @@ public class RowCounter extends DataAccess {
 	 */
 	public int countAll(String table) {
         int totalRows=-1;
-        openConnection();
         try{
         	statement=con.prepareStatement("SELECT COUNT(*) FROM "+table);
         	result = statement.executeQuery();
@@ -100,8 +92,6 @@ public class RowCounter extends DataAccess {
                }
         }catch(SQLException s){
         	s.printStackTrace();
-        }finally{
-        	closeConnection();
         }
 		return totalRows;
 	}
