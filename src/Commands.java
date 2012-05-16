@@ -50,6 +50,14 @@ public class Commands extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
+	
+	
+	/**
+	 * Copies clients with non-isp domains to their own table.
+	 * 
+	 * @param sourceTable the table to read rows from
+	 * @param newTable the table to insert rows with non-isp domain to
+	 */
 	public void copyClientsWithOtherDomains(String sourceTable, String newTable) {
 		CopyTable copy = new CopyTable(dbName, user, pwd);
 		Select select = new Select(dbName, user, pwd);
@@ -64,6 +72,12 @@ public class Commands extends DataAccess {
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
 	
+	/**
+	 * Copies clients with ips domains to their own table.
+	 * 
+	 * @param sourceTable the table to take rows from
+	 * @param newTable the table to insert rows with isp domain to
+	 */
 	public void copyClientsWithIspDomains(String sourceTable, String newTable) {
 		CopyTable copy = new CopyTable(dbName, user, pwd);
 		Select select = new Select(dbName, user, pwd);
@@ -78,19 +92,25 @@ public class Commands extends DataAccess {
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
 	
+	/**
+	 * Cleans the cl_ref of a certain table. Depricated because useless.
+	 * 
+	 * @param table the table to be cleaned
+	 */
 	public void cleanClrefs(String table){
 //		RowCounter counter = new RowCounter(dbName, user, pwd);
 		Modify modify = new Modify(dbName, user, pwd);
 		Select select = new Select(dbName, user, pwd);
-		
+		select.openConnection();
 		int[] companies = select.selectIntFromWhere("cl_ref", table, null);
 		String[] domains = select.selectStringFromWhere("domaines", table, null);
 		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
 		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
-		modify.openConnection();
+		select.closeConnection();
 		int count = 0;
 		HashMap<Integer,String> clientMap = new HashMap<Integer,String>();
 		System.out.println("Total entries: "+companies.length);
+		modify.openConnection();
 		for (int i=0; i<companies.length;i++) {
 			if (!(domains[i].equals("#value!") || Arrays.asList(ispDomains).contains(domains[i]))) {
 				if (clientMap.containsValue(domains[i])) {
@@ -109,6 +129,13 @@ public class Commands extends DataAccess {
 		System.out.println("Number of modifications: "+count);
 	}
 	
+	/**
+	 * Returns the key, corresponding to a certain value 
+	 * 
+	 * @param map the map to be processed
+	 * @param value the value to be looked for
+	 * @return the key that corresponds to the value
+	 */
 	public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
 	    for (Entry<T, E> entry : map.entrySet()) {
 	        if (value.equals(entry.getValue())) {
@@ -125,8 +152,10 @@ public class Commands extends DataAccess {
 	 */
 	public void convertEmailsToLowercase(String table) {
 		Modify modify = new Modify(dbName, user, pwd);
+		modify.openConnection();
 		modify.convertColumnValuesToLowercase(table, "ct_mail");
 		System.out.println("Converted to minuscule all email values from table "+table);
+		modify.closeConnection();
 	}
 	
 	/**
@@ -136,8 +165,10 @@ public class Commands extends DataAccess {
 	 */
 	public void convertDomainsToLowercase(String table) {
 		Modify modify = new Modify(dbName, user, pwd);
+		modify.openConnection();
 		modify.convertColumnValuesToLowercase(table, "domaines");
 		System.out.println("Converted to minuscule all domain values from table "+table);
+		modify.closeConnection();
 	}
 	
 	
@@ -148,9 +179,11 @@ public class Commands extends DataAccess {
 	 */
 	public void countDedoubledClients(String table){
 		RowCounter counter = new RowCounter(dbName, user, pwd);
+		counter.openConnection();
 		String where="`cl_ref` < 12000";
 		int dedoubled=counter.countDistinct("cl_ref_original", table, where);
 		System.out.println("Number of dedoubled clients: "+dedoubled);
+		counter.closeConnection();
 	}
 	
 	/**
@@ -161,8 +194,11 @@ public class Commands extends DataAccess {
 	 */
 	public void createMoreClref(String sourceTable, String clrefDomainsTable) {
 		Select select = new Select(dbName, user, pwd);
+		select.openConnection();
 		RowCounter counter = new RowCounter(dbName, user, pwd);
+		counter.openConnection();
 		InsertRows insert = new InsertRows(dbName, user, pwd);
+		insert.openConnection();
 //		int totalClref = counter.countDistinct("cl_ref", sourceTable, null);
 		int[] companies = select.selectIntFromWhere("cl_ref", sourceTable, null);
 		String[] domains = select.selectStringFromWhere("domaines", sourceTable, null);
@@ -184,7 +220,10 @@ public class Commands extends DataAccess {
 	    		}
 	    	}
 	    }
-	    System.out.println("Inserted new cl_ref : "+insertedNewClref); 
+	    System.out.println("Inserted new cl_ref : "+insertedNewClref);
+	    select.closeConnection();
+	    counter.closeConnection();
+	    insert.closeConnection();
 	}
 	
 	/**
