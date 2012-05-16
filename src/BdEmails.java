@@ -76,7 +76,7 @@ public class BdEmails {
 //		commands.copyClientsWithOtherDomains("bd_emails_05", "bd_emails_05_autres");
 //		commands.copyClientsWithIspDomains("bd_emails_05", "bd_emails_05_isp");
 //		commands.countAll("bd_emails_05_isp");
-		commands.countAll("bd_emails_05_autres");
+		commands.countAll("bd_emails_05_autres_1");
 		
 		
 		commands.closeConnection();

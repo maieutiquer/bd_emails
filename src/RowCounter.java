@@ -18,7 +18,7 @@ public class RowCounter extends DataAccess {
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public RowCounter(String dbName, String user, String pwd) {
+	public RowCounter() {
 		super(dbName, user, pwd);
 	}
 	

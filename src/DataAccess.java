@@ -14,9 +14,9 @@ import java.sql.SQLException;
 public class DataAccess extends SQLException {
 	
 	private static final long serialVersionUID = 7150475321334571741L;
-	protected String dbName;
-	protected String user;
-	protected String pwd;
+	protected static String dbName;
+	protected static String user;
+	protected static String pwd;
 	protected static Connection con = null; //opens connection
 	protected PreparedStatement statement = null; //query statement
 	protected ResultSet result = null; //manages results
@@ -30,9 +30,9 @@ public class DataAccess extends SQLException {
 	 */
 	public DataAccess(String dbName, String user, String pwd) {
 		super();
-		this.dbName = dbName;
-		this.user = user;
-		this.pwd = pwd;
+		DataAccess.dbName = dbName;
+		DataAccess.user = user;
+		DataAccess.pwd = pwd;
 	}
 	
 	/**

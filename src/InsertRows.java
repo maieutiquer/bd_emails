@@ -19,7 +19,7 @@ public class InsertRows extends DataAccess {
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public InsertRows(String dbName, String user, String pwd) {
+	public InsertRows() {
 		super(dbName, user, pwd);
 	}
 	
@@ -38,10 +38,9 @@ public class InsertRows extends DataAccess {
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 			
-			RowCounter counter = new RowCounter(dbName,user,pwd);
+			RowCounter counter = new RowCounter();
 			System.out.println("Total rows in "+newTable+" : " 
 					+ counter.countAll(newTable));
-        	
         }catch(SQLException s){
         	s.printStackTrace();
         }
@@ -69,7 +68,7 @@ public class InsertRows extends DataAccess {
 			}
 			result = statement.executeQuery();
 			
-			Select select = new Select(dbName, user, pwd);
+			Select select = new Select();
 			
 			String[] columnsList = select.getColumnsAsArray(fromTable);
 			String columns="";

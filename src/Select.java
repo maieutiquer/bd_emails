@@ -22,7 +22,7 @@ public class Select extends DataAccess {
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public Select(String dbName, String user, String pwd) {
+	public Select() {
 		super(dbName, user, pwd);
 	}
 	

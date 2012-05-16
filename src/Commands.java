@@ -41,14 +41,29 @@ public class Commands extends DataAccess {
 	}
 	
 	/**
+	 * Determines the rule for username in emails 
+	 * and writes it in the corresponding column.
+	 * 
+	 * @param table the table whose rows to process
+	 */
+	public void determineUserRule(String table) {
+		Modify modify = new Modify();
+		Select select = new Select();
+		String[] firstName = select.selectStringFromWhere("ct_prenom", table, null);
+		String[] lastName = select.selectStringFromWhere("ct_nom", table, null);
+		String[] email = select.selectStringFromWhere("ct_mail", table, null);
+		
+	}
+	
+	/**
 	 * Copies clients with non-isp domains to their own table.
 	 * 
 	 * @param sourceTable the table to read rows from
 	 * @param newTable the table to insert rows with non-isp domain to
 	 */
 	public void copyClientsWithOtherDomains(String sourceTable, String newTable) {
-		CopyTable copy = new CopyTable(dbName, user, pwd);
-		Select select = new Select(dbName, user, pwd);
+		CopyTable copy = new CopyTable();
+		Select select = new Select();
 		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
 		String ispDomainsString = "";
 		for(int i=0;i<ispDomains.length;i++) {
@@ -67,8 +82,8 @@ public class Commands extends DataAccess {
 	 * @param newTable the table to insert rows with isp domain to
 	 */
 	public void copyClientsWithIspDomains(String sourceTable, String newTable) {
-		CopyTable copy = new CopyTable(dbName, user, pwd);
-		Select select = new Select(dbName, user, pwd);
+		CopyTable copy = new CopyTable();
+		Select select = new Select();
 		String[] ispDomains = select.selectStringFromWhere("name", "isp_domains_2", null);
 		String ispDomainsString = "";
 		for(int i=0;i<ispDomains.length;i++) {
@@ -78,6 +93,7 @@ public class Commands extends DataAccess {
 		
 		String where = "`domaines` IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
+		
 	}
 	
 	/**
@@ -87,8 +103,8 @@ public class Commands extends DataAccess {
 	 */
 	public void cleanClrefs(String table){
 //		RowCounter counter = new RowCounter(dbName, user, pwd);
-		Modify modify = new Modify(dbName, user, pwd);
-		Select select = new Select(dbName, user, pwd);
+		Modify modify = new Modify();
+		Select select = new Select();
 		int[] companies = select.selectIntFromWhere("cl_ref", table, null);
 		String[] domains = select.selectStringFromWhere("domaines", table, null);
 		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
@@ -135,7 +151,7 @@ public class Commands extends DataAccess {
 	 * @param table the table whose emails to put in lowercase
 	 */
 	public void convertEmailsToLowercase(String table) {
-		Modify modify = new Modify(dbName, user, pwd);
+		Modify modify = new Modify();
 		modify.convertColumnValuesToLowercase(table, "ct_mail");
 		System.out.println("Converted to minuscule all email values from table "+table);
 	}
@@ -146,7 +162,7 @@ public class Commands extends DataAccess {
 	 * @param table the table whose domains to put in lowercase
 	 */
 	public void convertDomainsToLowercase(String table) {
-		Modify modify = new Modify(dbName, user, pwd);
+		Modify modify = new Modify();
 		modify.convertColumnValuesToLowercase(table, "domaines");
 		System.out.println("Converted to minuscule all domain values from table "+table);
 	}
@@ -158,7 +174,7 @@ public class Commands extends DataAccess {
 	 * @param table the table with dedoubled clients
 	 */
 	public void countDedoubledClients(String table){
-		RowCounter counter = new RowCounter(dbName, user, pwd);
+		RowCounter counter = new RowCounter();
 		String where="`cl_ref` < 12000";
 		int dedoubled=counter.countDistinct("cl_ref_original", table, where);
 		System.out.println("Number of dedoubled clients: "+dedoubled);
@@ -171,9 +187,9 @@ public class Commands extends DataAccess {
 	 * @param clrefDomainsTable
 	 */
 	public void createMoreClref(String sourceTable, String clrefDomainsTable) {
-		Select select = new Select(dbName, user, pwd);
-		RowCounter counter = new RowCounter(dbName, user, pwd);
-		InsertRows insert = new InsertRows(dbName, user, pwd);
+		Select select = new Select();
+		RowCounter counter = new RowCounter();
+		InsertRows insert = new InsertRows();
 //		int totalClref = counter.countDistinct("cl_ref", sourceTable, null);
 		int[] companies = select.selectIntFromWhere("cl_ref", sourceTable, null);
 		String[] domains = select.selectStringFromWhere("domaines", sourceTable, null);
@@ -205,9 +221,9 @@ public class Commands extends DataAccess {
 	 * @param ispDomainsTable the table with a list of all domains
 	 */
 	public void updateIspDomainUsersNumber(String sourceTable, String ispDomainsTable) {
-		Select select = new Select(dbName, user, pwd);
-		RowCounter counter = new RowCounter(dbName, user, pwd);
-		Modify modify = new Modify(dbName, user, pwd);
+		Select select = new Select();
+		RowCounter counter = new RowCounter();
+		Modify modify = new Modify();
 		int totalDomains = counter.countAll(ispDomainsTable);
 		
 		for(int i=0;i<totalDomains;i++){
@@ -221,8 +237,8 @@ public class Commands extends DataAccess {
 	}
 	
 	public void countDomainsWithOneAddress(String sourceTable, String domainsTable) {
-		Select select = new Select(dbName, user, pwd);
-		RowCounter counter = new RowCounter(dbName, user, pwd);
+		Select select = new Select();
+		RowCounter counter = new RowCounter();
 		int totalDomains = counter.countAll(domainsTable);
 		int result=0;
 		for(int i=0;i<totalDomains;i++){
@@ -246,7 +262,7 @@ public class Commands extends DataAccess {
 	 * @param column the column whose distinct values should be counted
 	 */
 	public void countDistinct(String table, String column) {
-		RowCounter counter = new RowCounter(dbName, user, pwd);
+		RowCounter counter = new RowCounter();
 		int distinctValues = counter.countDistinct(column, table, null);
 		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
 	}
@@ -258,7 +274,7 @@ public class Commands extends DataAccess {
 	 * @param numberOfUsers the number of users to check
 	 */
 	public void countDomainsWithXCompanies(String table, int numberOfCompanies) {
-		RowCounter counter = new RowCounter(dbName, user, pwd);
+		RowCounter counter = new RowCounter();
 		String where = "number_of_companies="+numberOfCompanies;
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfCompanies+" companies: "+result);
@@ -271,9 +287,9 @@ public class Commands extends DataAccess {
 	 * @param domainsTable the table with a list of all domains
 	 */
 	public void updateDomainCompaniesNumber(String sourceTable, String domainsTable){
-		Select select = new Select(dbName, user, pwd);
-		RowCounter counter = new RowCounter(dbName, user, pwd);
-		Modify modify = new Modify(dbName, user, pwd);
+		Select select = new Select();
+		RowCounter counter = new RowCounter();
+		Modify modify = new Modify();
 		int totalDomains = counter.countAll(domainsTable);
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
@@ -292,7 +308,7 @@ public class Commands extends DataAccess {
 	 * @param numberOfUsers the number of users to check
 	 */
 	public void countDomainsWithXUsers(String table, int numberOfUsers) {
-		RowCounter counter = new RowCounter(dbName, user, pwd);
+		RowCounter counter = new RowCounter();
 		String where = "number_of_users="+numberOfUsers;
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfUsers+" users: "+result);
@@ -305,9 +321,9 @@ public class Commands extends DataAccess {
 	 * @param domainsTable the table with a list of all domains
 	 */
 	public void updateDomainUsersNumber(String sourceTable, String domainsTable) {
-		Select select = new Select(dbName, user, pwd);
-		RowCounter counter = new RowCounter(dbName, user, pwd);
-		Modify modify = new Modify(dbName, user, pwd);
+		Select select = new Select();
+		RowCounter counter = new RowCounter();
+		Modify modify = new Modify();
 		int totalDomains = counter.countAll(domainsTable);
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
@@ -320,7 +336,7 @@ public class Commands extends DataAccess {
 	}
 	
 	public void cloneTable(String source, String cloned){
-		CopyTable copy = new CopyTable(dbName, user, pwd);
+		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(source, cloned, null);
 	}
 	
@@ -331,7 +347,7 @@ public class Commands extends DataAccess {
 	 * @param newTable the table to be created with the same structure and with the empty rows copied
 	 */
 	public void insertDistinctDomains(String sourceTable, String newTable){
-		InsertRows insert = new InsertRows(dbName, user, pwd);
+		InsertRows insert = new InsertRows();
 		insert.insertDistinct(sourceTable, newTable, "domaines", "name");
 	}
 	
@@ -344,7 +360,7 @@ public class Commands extends DataAccess {
 	public void copyEmpty(String sourceTable, String newTable){
 		//condition for copying
 		String where = emptyRowsCond; 
-		CopyTable copy = new CopyTable(dbName, user, pwd);
+		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
 	
@@ -354,7 +370,7 @@ public class Commands extends DataAccess {
 	 * @param table the table whose rows to count
 	 */
 	public void countAll(String table) {
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		System.out.println("Total rows in "+table+" : " 
 				+ counter.countAll(table));
 	}
@@ -365,7 +381,7 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countEmptyGender(String table) {
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyGenderCond; 
@@ -380,7 +396,7 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countEmptyEmail(String table) {
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyEmailCond; 
@@ -395,7 +411,7 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countEmptyLastname(String table) {
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyLastnameCond; 
@@ -410,7 +426,7 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countEmptyFirstname(String table) {
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyFirstnameCond; 
@@ -428,7 +444,7 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmpty(String table){
 		
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = emptyRowsCond; 
@@ -446,7 +462,7 @@ public class Commands extends DataAccess {
 	 */
 	public void countNonEmpty(String table){
 		
-		RowCounter counter = new RowCounter(dbName,user,pwd);
+		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
 		String where = "NOT ("+emptyRowsCond+")";
@@ -461,7 +477,7 @@ public class Commands extends DataAccess {
 	 * @param table the table whose columns should be taken into consideration
 	 */
 	public void showColumnNames(String table){
-		Select select = new Select(dbName, user, pwd);
+		Select select = new Select();
 		String[] columnsList = select.getColumnsAsArray(table);
 		System.out.println("Total number of columns in "+table+" : " + (columnsList.length-1));
 		for (int i=1;i<columnsList.length;i++){
@@ -481,7 +497,7 @@ public class Commands extends DataAccess {
 		//we define the condition to select specific rows and insert them in another table
 		String where = "NOT ("+emptyRowsCond+")"; 
 		
-		CopyTable copy = new CopyTable(dbName, user, pwd);
+		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(fromTable, toTable, where);
 	}
 	
@@ -497,7 +513,7 @@ public class Commands extends DataAccess {
 		//we define the condition to select specific rows and insert them in another table
 		String where = emptyRowsCond; 
 		
-		InsertRows insert = new InsertRows(dbName, user, pwd);
+		InsertRows insert = new InsertRows();
 		insert.copyRowsFromWhere(fromTable, toTable, where);
 	}
 	

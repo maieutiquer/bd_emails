@@ -18,7 +18,7 @@ public class Modify extends DataAccess {
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public Modify(String dbName, String user, String pwd) {
+	public Modify() {
 		super(dbName, user, pwd);
 	}
 	

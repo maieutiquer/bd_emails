@@ -18,7 +18,7 @@ public class CopyTable extends DataAccess{
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public CopyTable(String dbName, String user, String pwd) {
+	public CopyTable() {
 		super(dbName, user, pwd);
 	}
 	
@@ -46,7 +46,7 @@ public class CopyTable extends DataAccess{
         	}
 			statement.executeUpdate();
 			
-			RowCounter counter = new RowCounter(dbName,user,pwd);
+			RowCounter counter = new RowCounter();
 			System.out.println("Total rows inserted in "+newTable+" : " 
 					+ counter.countFromWhere(newTable, where));
         }catch(SQLException s){
@@ -77,7 +77,7 @@ public class CopyTable extends DataAccess{
 			statement = con.prepareStatement(myStatement);
 			statement.executeUpdate();
 			
-			RowCounter counter = new RowCounter(dbName,user,pwd);
+			RowCounter counter = new RowCounter();
 			System.out.println("Total rows in "+newTable+" : " 
 					+ counter.countAll(newTable));
         	
