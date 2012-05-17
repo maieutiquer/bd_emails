@@ -49,7 +49,7 @@ public class Commands extends DataAccess {
 	public void determineFirstNameRule(String table) {
 		Modify modify = new Modify();
 		Select select = new Select();
-		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
+		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
 		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
@@ -58,10 +58,18 @@ public class Commands extends DataAccess {
 		int[] ruleIds = select.selectIntFromWhere("id", "regle_prenom", null);
 		for (int i=0; i<emails.length; i++) {
 			int rule=-1;
+			int ct_ref = ct_refs[i];
+			String firstName = firstNames[i].toLowerCase();
+			String lastName = lastNames[i].toLowerCase();
+			String email = emails[i];
+			String userRule = userRules[i];
+			String ruleText = ruleTexts[i];
+			int ruleId = ruleIds[i];
 			
-			//TODO: process each value in the above arrays to determine the user, -1 for error
+			//TODO: process each value to determine the prenom rule, -1 for error
 			
-			modify.modifyWhere(table, "ct_ref="+ct_ref[i], "regle_prenom", Integer.toString(rule));
+			
+			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_prenom", Integer.toString(rule));
 		}
 	}
 	
@@ -74,18 +82,58 @@ public class Commands extends DataAccess {
 	public void determineUserRule(String table) {
 		Modify modify = new Modify();
 		Select select = new Select();
-		String[] ct_ref = select.selectStringFromWhere("ct_ref", table, null);
+		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
 		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
+		String[] firstNameRules = select.selectStringFromWhere("regle_user", table, null);
 		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
 		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
 		for (int i=0; i<emails.length; i++) {
 			int rule=-1;
+			int ct_ref = ct_refs[i];
+			String firstName = firstNames[i];
+			String lastName = lastNames[i];
+			String email = emails[i];
+			String firstNameRule = firstNameRules[i];
+			String ruleText = ruleTexts[i];
+			int ruleId = ruleIds[i];
+			String user = null;
 			
-			//TODO: process each value in the above arrays to determine the user, -1 for error
+			//TODO: process each value in the above arrays to determine the user rule, -1 for error
 			
-			modify.modifyWhere(table, "ct_ref="+ct_ref[i], "regle_user", Integer.toString(rule));
+			
+			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", Integer.toString(rule));
+		}
+	}
+	
+	/**
+	 * Determines the username of the email. Takes the part of the email before the domain.
+	 * 
+	 * @param table the table to process
+	 */
+	public void determineUserAndDomain(String table){
+		Modify modify = new Modify();
+		Select select = new Select();
+		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
+		int[] ctRefs = select.selectIntFromWhere("ct_ref", table, null);
+		int position=-1;
+		String domain="";
+		String email="";
+		for (int i=0; i<emails.length; i++) {
+			int ctRef = ctRefs[i];
+			email = emails[i];
+			String user = null;
+			position = email.indexOf('@');
+			if (position != -1) {
+				domain = email.substring(position);
+				user = email.substring(0, position);
+				// the char ' is replaced with \'
+				user = user.replaceAll("'", "\\\\'");
+				domain = domain.replaceAll("'", "\\\\'");
+				modify.modifyWhere(table, "`ct_ref`="+ctRefs[i], "`domaines`", "'"+domain+"'");
+				modify.modifyWhere(table, "`ct_ref`="+ctRef, "`user`", "'"+user+"'");
+			}
 		}
 	}
 	
@@ -404,6 +452,36 @@ public class Commands extends DataAccess {
 		RowCounter counter = new RowCounter();
 		System.out.println("Total rows in "+table+" : " 
 				+ counter.countAll(table));
+	}
+	
+	/**
+	 * Counts the number of rows without gender from a given table.
+	 * 
+	 * @param table the table that should be checked
+	 */
+	public void countEmptyDomain(String table) {
+		RowCounter counter = new RowCounter();
+		
+		//we define the condition to select specific rows and to count them
+		String where = "domaines IN (null, '', '#value!')"; 
+		
+		System.out.println("Total rows with empty domain in "+table+" : " 
+				+ counter.countFromWhere(table, where));
+	}
+	
+	/**
+	 * Counts the number of rows without gender from a given table.
+	 * 
+	 * @param table the table that should be checked
+	 */
+	public void countEmptyUser(String table) {
+		RowCounter counter = new RowCounter();
+		
+		//we define the condition to select specific rows and to count them
+		String where = "user IS NULL"; 
+		
+		System.out.println("Total rows with empty username in "+table+" : " 
+				+ counter.countFromWhere(table, where));
 	}
 	
 	/**
