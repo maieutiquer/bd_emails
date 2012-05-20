@@ -78,15 +78,18 @@ public class BdEmails {
 //		commands.countAll("bd_emails_05_isp");
 		
 //		commands.determineUser("bd_emails_05_autres_2");
-		commands.countAll("bd_emails_05_autres_3");
-//		commands.countEmptyFirstname("bd_emails_05_autres_2");
-//		commands.countEmptyLastname("bd_emails_05_autres_2");
-//		commands.countEmptyUser("bd_emails_05_autres_2");
-//		commands.countEmptyDomain("bd_emails_05_autres_2");
-//		commands.countEmptyEmail("bd_emails_05_autres_2");
+		commands.countAll("bd_emails_05_isp_3");
 		
-		commands.determineUserAndDomain("bd_emails_05_autres_3");
-//		commands.determineUserRule("bd_emails_05_autres_1");
+//		commands.determineUserAndDomain("bd_emails_05_isp_3");
+//		
+//		commands.countEmptyFirstname("bd_emails_05_isp_3");
+//		commands.countEmptyLastname("bd_emails_05_isp_3");
+//		commands.countEmptyUser("bd_emails_05_isp_3");
+//		commands.countEmptyDomain("bd_emails_05_isp_3");
+//		commands.countEmptyEmail("bd_emails_05_isp_3");
+//		commands.countEmptyGender("bd_emails_05_isp_3");
+		
+		commands.determineUserRule("bd_emails_05_autres_3");
 //		commands.determineFirstNameRule("bd_emails_05_autres_1");
 		
 		

@@ -85,25 +85,29 @@ public class Commands extends DataAccess {
 		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
-		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
-		String[] firstNameRules = select.selectStringFromWhere("regle_user", table, null);
+		String[] users = select.selectStringFromWhere("user", table, null);
 		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
 		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
-		for (int i=0; i<emails.length; i++) {
+		
+		HashMap<Integer,String> ruleMap = new HashMap<Integer,String>();
+		for (int i=0;i<ruleIds.length;i++) {
+			ruleMap.put(ruleIds[i], ruleTexts[i]);
+			System.out.println(ruleMap.get(i+1));
+		}
+		
+		for (int i=0; i<users.length; i++) {
 			int rule=-1;
 			int ct_ref = ct_refs[i];
-			String firstName = firstNames[i];
-			String lastName = lastNames[i];
-			String email = emails[i];
-			String firstNameRule = firstNameRules[i];
-			String ruleText = ruleTexts[i];
-			int ruleId = ruleIds[i];
-			String user = null;
-			
+			String firstName = firstNames[i].toLowerCase();
+			String lastName = lastNames[i].toLowerCase();
+			String user = users[i].toLowerCase();
 			//TODO: process each value in the above arrays to determine the user rule, -1 for error
-			
-			
-			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", Integer.toString(rule));
+			user = user.replaceAll(firstName, "prenom");
+			user = user.replaceAll(lastName, "nom");
+			if (ruleMap.containsValue(user)) {
+				System.out.println(getKeyByValue(ruleMap, user));
+			}
+//			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", Integer.toString(rule));
 		}
 	}
 	
@@ -463,7 +467,7 @@ public class Commands extends DataAccess {
 		RowCounter counter = new RowCounter();
 		
 		//we define the condition to select specific rows and to count them
-		String where = "domaines IN (null, '', '#value!')"; 
+		String where = "domaines IS NULL"; 
 		
 		System.out.println("Total rows with empty domain in "+table+" : " 
 				+ counter.countFromWhere(table, where));
@@ -480,7 +484,7 @@ public class Commands extends DataAccess {
 		//we define the condition to select specific rows and to count them
 		String where = "user IS NULL"; 
 		
-		System.out.println("Total rows with empty username in "+table+" : " 
+		System.out.println("Total rows with empty user in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
 	
