@@ -100,7 +100,7 @@ public class Commands extends DataAccess {
 			for (int i=0; i<users.length; i++) {
 				String user = "";
 				user += users[i];
-				if (!user.isEmpty()){
+				if (!user.equals("")){
 					rule = -1;
 					ct_ref = ct_refs[i];
 					String firstName = firstNames[i].toLowerCase();
@@ -108,20 +108,23 @@ public class Commands extends DataAccess {
 					char fnfl = 0; // First Name's First Letter
 					char lnfl = 0; // Last Name's First Letter
 					//TODO: process each value in the above arrays to determine the user rule, -1 for error
-					if (!firstName.isEmpty()) {
+					if (!firstName.equals("")) {
 						fnfl = firstName.charAt(0);
 						if (user.contains(firstName)) {
 							user = user.replaceAll(firstName, "e");
 						}
 					}
-					if(!lastName.isEmpty()){
+					if(!lastName.equals("")){
 						lnfl = lastName.charAt(0);
 						if (user.contains(lastName)) {
 							user = user.replaceAll(lastName, "o");
 						}
 					}
-					if (!firstName.isEmpty() && users[i].charAt(0)==firstName.charAt(0)) {
+					if (!firstName.equals("") && users[i].charAt(0)==firstName.charAt(0)) {
 						user.replaceFirst(Character.toString(user.charAt(0)), "p");
+					}else{
+						//don't add it if accidentally starts with 'p'
+						user.replaceFirst(Character.toString(user.charAt(0)), "f");
 					}
 //					System.out.println(fnfl + " and " + lnfl);
 					if (ruleMap.containsValue(user)) {
