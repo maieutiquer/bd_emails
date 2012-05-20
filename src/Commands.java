@@ -98,30 +98,36 @@ public class Commands extends DataAccess {
 		int rule=0;
 //		try{
 			for (int i=0; i<users.length; i++) {
-				rule = -1;
-				ct_ref = ct_refs[i];
-				String firstName = firstNames[i].toLowerCase();
-				String lastName = lastNames[i].toLowerCase();
-				String user = users[i];
-				char fnfl = 0; // First Name's First Letter
-				char lnfl = 0; // Last Name's First Letter
-				//TODO: process each value in the above arrays to determine the user rule, -1 for error
-				if (!(firstName.isEmpty())) {
-					fnfl = firstName.charAt(0);
-					if (user.contains(firstName)) {
-						user = user.replaceAll(firstName, "prenom");
+				String user = "";
+				user += users[i];
+				if (!user.isEmpty()){
+					rule = -1;
+					ct_ref = ct_refs[i];
+					String firstName = firstNames[i].toLowerCase();
+					String lastName = lastNames[i].toLowerCase();
+					char fnfl = 0; // First Name's First Letter
+					char lnfl = 0; // Last Name's First Letter
+					//TODO: process each value in the above arrays to determine the user rule, -1 for error
+					if (!firstName.isEmpty()) {
+						fnfl = firstName.charAt(0);
+						if (user.contains(firstName)) {
+							user = user.replaceAll(firstName, "e");
+						}
 					}
-				}
-				if(!(lastName.isEmpty())){
-					lnfl = lastName.charAt(0);
-					if (user.contains(lastName)) {
-						user = user.replaceAll(lastName, "nom");
+					if(!lastName.isEmpty()){
+						lnfl = lastName.charAt(0);
+						if (user.contains(lastName)) {
+							user = user.replaceAll(lastName, "o");
+						}
 					}
-				}
-				System.out.println(fnfl + " and " + lnfl);
-				if (ruleMap.containsValue(user)) {
-					System.out.println("At "+ct_ref+" is "+getKeyByValue(ruleMap, user));
-//					modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", getKeyByValue(ruleMap, user).toString());
+					if (!firstName.isEmpty() && users[i].charAt(0)==firstName.charAt(0)) {
+						user.replaceFirst(Character.toString(user.charAt(0)), "p");
+					}
+//					System.out.println(fnfl + " and " + lnfl);
+					if (ruleMap.containsValue(user)) {
+						System.out.println("At "+ct_ref+" is "+getKeyByValue(ruleMap, user));
+//						modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", getKeyByValue(ruleMap, user).toString());
+					}
 				}
 			}
 //		}catch(Exception e){
