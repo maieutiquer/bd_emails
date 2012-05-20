@@ -94,21 +94,33 @@ public class Commands extends DataAccess {
 			ruleMap.put(ruleIds[i], ruleTexts[i]);
 			System.out.println(ruleMap.get(i+1));
 		}
-		
-		for (int i=0; i<users.length; i++) {
-			int rule=-1;
-			int ct_ref = ct_refs[i];
-			String firstName = firstNames[i].toLowerCase();
-			String lastName = lastNames[i].toLowerCase();
-			String user = users[i].toLowerCase();
-			//TODO: process each value in the above arrays to determine the user rule, -1 for error
-			user = user.replaceAll(firstName, "prenom");
-			user = user.replaceAll(lastName, "nom");
-			if (ruleMap.containsValue(user)) {
-				System.out.println(getKeyByValue(ruleMap, user));
+		int ct_ref=0;
+		int rule=0;
+//		try{
+			for (int i=0; i<users.length; i++) {
+				rule = -1;
+				ct_ref = ct_refs[i];
+				String firstName = firstNames[i].toLowerCase();
+				String lastName = lastNames[i].toLowerCase();
+				String user = users[i];
+				//TODO: process each value in the above arrays to determine the user rule, -1 for error
+				if (!(firstName.isEmpty()) && user.contains(firstName)) {
+					user = user.replaceAll(firstName, "prenom");
+				}
+				if(!(lastName.isEmpty()) && user.contains(lastName)){
+					user = user.replaceAll(lastName, "nom");
+				}
+				if (ruleMap.containsValue(user)) {
+					System.out.println("At "+ct_ref+" is "+getKeyByValue(ruleMap, user));
+					modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", getKeyByValue(ruleMap, user).toString());
+				}
 			}
-//			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", Integer.toString(rule));
-		}
+//		}catch(Exception e){
+//			e.printStackTrace();
+//			System.out.println("error at ct_ref: "+ct_ref);
+//		}
+		
+		
 	}
 	
 	/**
