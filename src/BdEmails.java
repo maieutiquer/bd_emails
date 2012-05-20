@@ -78,7 +78,7 @@ public class BdEmails {
 //		commands.countAll("bd_emails_05_isp");
 		
 //		commands.determineUser("bd_emails_05_autres_2");
-		commands.countAll("bd_emails_05_isp_3");
+		commands.countAll("bd_emails_05_autres_5");
 		
 //		commands.determineUserAndDomain("bd_emails_05_isp_3");
 //		
@@ -89,7 +89,7 @@ public class BdEmails {
 //		commands.countEmptyEmail("bd_emails_05_isp_3");
 //		commands.countEmptyGender("bd_emails_05_isp_3");
 		
-		commands.determineUserRule("bd_emails_05_autres_3");
+		commands.determineUserRule("bd_emails_05_autres_5");
 //		commands.determineFirstNameRule("bd_emails_05_autres_1");
 		
 		
