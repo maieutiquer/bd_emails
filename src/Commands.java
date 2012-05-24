@@ -74,6 +74,17 @@ public class Commands extends DataAccess {
 	}
 	
 	/**
+	 * Determines the empty rule. Doc to be completed.
+	 * 
+	 * @param table the table whose empty rule to determine
+	 */
+	public void determineEmptyUserRule(String table) {
+		Modify modify = new Modify();
+		String emptyCond = "("+emptyFirstnameCond+") AND ("+emptyLastnameCond+")";
+		modify.modifyWhere(table, emptyCond, "regle_user", "12");
+	}
+	
+	/**
 	 * Determines the rule for username in emails 
 	 * and writes it in the corresponding column.
 	 * 
@@ -88,51 +99,157 @@ public class Commands extends DataAccess {
 		String[] users = select.selectStringFromWhere("user", table, null);
 		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
 		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
+		int[] allRules = select.selectIntFromWhere("regle_user", table, null);
 		
 		HashMap<Integer,String> ruleMap = new HashMap<Integer,String>();
 		for (int i=0;i<ruleIds.length;i++) {
 			ruleMap.put(ruleIds[i], ruleTexts[i]);
 			System.out.println(ruleMap.get(i+1));
 		}
-		int ct_ref=0;
+		int ctRef=0;
 		int rule=0;
+		int numberOfErrors=0;
+		boolean write = false;
+		boolean changeFirstName = false;
 //		try{
 			for (int i=0; i<users.length; i++) {
 				String user = "";
-				user += users[i];
-				if (!user.equals("")){
-					rule = -1;
-					ct_ref = ct_refs[i];
+				user = users[i];
+				if (allRules[i]!=12 && !user.equals("")){
+					changeFirstName = false;
+					ctRef = ct_refs[i];
 					String firstName = firstNames[i].toLowerCase();
 					String lastName = lastNames[i].toLowerCase();
-					char fnfl = 0; // First Name's First Letter
-					char lnfl = 0; // Last Name's First Letter
-					//TODO: process each value in the above arrays to determine the user rule, -1 for error
-					if (!firstName.equals("")) {
-						fnfl = firstName.charAt(0);
+					if (!firstName.equals("") && firstName.length()>1) {
 						if (user.contains(firstName)) {
 							user = user.replaceAll(firstName, "e");
+						}else{
+							changeFirstName = true;
 						}
 					}
 					if(!lastName.equals("")){
-						lnfl = lastName.charAt(0);
 						if (user.contains(lastName)) {
 							user = user.replaceAll(lastName, "o");
 						}
 					}
-					if (!firstName.equals("") && users[i].charAt(0)==firstName.charAt(0)) {
-						user.replaceFirst(Character.toString(user.charAt(0)), "p");
-					}else{
-						//don't add it if accidentally starts with 'p'
-						user.replaceFirst(Character.toString(user.charAt(0)), "f");
+					if (!(firstName.equals("")) && firstName.charAt(0)==users[i].charAt(0) && changeFirstName) {
+						user = user.replaceFirst(Character.toString(users[i].charAt(0)), "p");
 					}
-//					System.out.println(fnfl + " and " + lnfl);
+					if (!(lastName.equals("")) && lastName.charAt(0)==users[i].charAt(0)) {
+						user = user.replaceFirst(Character.toString(users[i].charAt(0)), "m");
+					}
 					if (ruleMap.containsValue(user)) {
-						System.out.println("At "+ct_ref+" is "+getKeyByValue(ruleMap, user));
-//						modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_user", getKeyByValue(ruleMap, user).toString());
+						write=false;
+						rule=getKeyByValue(ruleMap, user);
+						switch (rule) {
+						case 1:
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.equals(users[i].substring(0, users[i].indexOf('.'))) 
+									&& lastName.equals(users[i].substring(users[i].indexOf('.')+1))) {
+								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 1 !");
+//								System.out.println(users[i]+" and "+ctRef);
+							}
+							break;
+						case 2:
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.charAt(0) == users[i].charAt(0) 
+									&& lastName.equals(users[i].substring(users[i].indexOf('.')+1))) {
+								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 2 !");
+//								System.out.println(users[i]+" and "+ctRef);
+							}
+							break;
+						case 3:
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.charAt(0) == users[i].charAt(0) 
+									&& lastName.equals(users[i].substring(1))) {
+								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 3 !");
+//								System.out.println(users[i]+" and "+ctRef);
+							}
+							break;
+						case 4:
+							if (lastName.equals(users[i])) {
+								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 4 !");
+//								System.out.println(users[i]+" and "+ctRef);
+							}
+							break;
+						case 5:
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& lastName.equals(users[i].substring(0, users[i].indexOf('.'))) 
+									&& firstName.equals(users[i].substring(users[i].indexOf('.')+1))) {
+								write=true;
+							}else{
+								numberOfErrors++;
+								System.out.println("ERROR for 5 !");
+								System.out.println(users[i]+" and "+ctRef);
+							}
+							break;
+						case 6:
+							if (write) {
+								write=true;
+							}
+							break;
+						case 7:
+//							System.out.println(7);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 8:
+//							System.out.println(8);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 9:
+//							System.out.println(9);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 10:
+//							System.out.println(10);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 11:
+//							System.out.println(11);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 12:
+//							System.out.println(12);
+							if (write) {
+								write=true;
+							}
+							break;
+						default:
+							write=false;
+							break;
+						}
+						
+						if (write) {
+							write=false;
+//							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
+//							modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", getKeyByValue(ruleMap, user).toString());
+						}
 					}
 				}
 			}
+			System.out.println("Number of caught errors: "+numberOfErrors);
 //		}catch(Exception e){
 //			e.printStackTrace();
 //			System.out.println("error at ct_ref: "+ct_ref);

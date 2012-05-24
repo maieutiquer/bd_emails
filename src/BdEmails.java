@@ -89,9 +89,9 @@ public class BdEmails {
 //		commands.countEmptyEmail("bd_emails_05_isp_3");
 //		commands.countEmptyGender("bd_emails_05_isp_3");
 		
+//		commands.determineEmptyUserRule("bd_emails_05_autres_5");
 		commands.determineUserRule("bd_emails_05_autres_5");
-//		commands.determineFirstNameRule("bd_emails_05_autres_1");
-		
+//		commands.determineFirstNameRule("bd_emails_05_autres_5");
 		
 		commands.closeConnection();
 		System.exit(0);
