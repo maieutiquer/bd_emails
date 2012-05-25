@@ -80,8 +80,16 @@ public class Commands extends DataAccess {
 	 */
 	public void determineEmptyUserRule(String table) {
 		Modify modify = new Modify();
+		Select select = new Select();
 		String emptyCond = "("+emptyFirstnameCond+") AND ("+emptyLastnameCond+")";
-		modify.modifyWhere(table, emptyCond, "regle_user", "12");
+		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
+		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
+		HashMap<Integer,String> ruleMap = new HashMap<Integer,String>();
+		for (int i=0;i<ruleIds.length;i++) {
+			ruleMap.put(ruleIds[i], ruleTexts[i]);
+			System.out.println(ruleMap.get(i+1));
+		}
+		modify.modifyWhere(table, emptyCond, "regle_user", getKeyByValue(ruleMap, "v").toString());
 	}
 	
 	/**
@@ -115,7 +123,7 @@ public class Commands extends DataAccess {
 			for (int i=0; i<users.length; i++) {
 				String user = "";
 				user = users[i];
-				if (allRules[i]!=12 && !user.equals("")){
+				if (allRules[i]!=getKeyByValue(ruleMap, "v") && !user.equals("")){
 					changeFirstName = false;
 					ctRef = ct_refs[i];
 					String firstName = firstNames[i].toLowerCase();
@@ -191,47 +199,77 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("ERROR for 5 !");
-								System.out.println(users[i]+" and "+ctRef);
+//								System.out.println("ERROR for 5 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 6:
-							if (write) {
+							if (firstName.equals(users[i])) {
 								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 6 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 7:
-//							System.out.println(7);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& lastName.equals(users[i].substring(0, users[i].indexOf('.'))) 
+									&& firstName.charAt(0) == users[i].charAt(users[i].indexOf('.')+1)) {
 								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 7 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 8:
 //							System.out.println(8);
-							if (write) {
-								write=true;
-							}
+							numberOfErrors++;
+//							System.out.println("ERROR for 8 !");
+//							System.out.println(users[i]+" and "+ctRef);
 							break;
 						case 9:
-//							System.out.println(9);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.equals(users[i].substring(0, users[i].indexOf('_'))) 
+									&& lastName.equals(users[i].substring(users[i].indexOf('_')+1))) {
 								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 9 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 10:
-//							System.out.println(10);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.charAt(0) == users[i].charAt(0) 
+									&& lastName.equals(users[i].substring(users[i].indexOf('-')+1))) {
 								write=true;
+							}else{
+								numberOfErrors++;
+								System.out.println("ERROR for 2 !");
+								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 11:
-//							System.out.println(11);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.equals(users[i].substring(0, firstName.length()))
+									&& lastName.equals(users[i].substring(firstName.length()))) {
 								write=true;
+							}else{
+								numberOfErrors++;
+								System.out.println("ERROR for 11 !");
+								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 12:
 //							System.out.println(12);
+							if (write) {
+								write=true;
+							}
+							break;
+						case 13:
+//							System.out.println(13);
 							if (write) {
 								write=true;
 							}
