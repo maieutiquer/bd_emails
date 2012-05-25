@@ -119,6 +119,7 @@ public class Commands extends DataAccess {
 		int numberOfErrors=0;
 		boolean write = false;
 		boolean changeFirstName = false;
+		boolean changeLastName = false;
 //		try{
 			for (int i=0; i<users.length; i++) {
 				String user = "";
@@ -135,15 +136,17 @@ public class Commands extends DataAccess {
 							changeFirstName = true;
 						}
 					}
-					if(!lastName.equals("")){
-						if (user.contains(lastName)) {
+					if(!lastName.equals("") && lastName.length()>1){
+						if (user.contains(lastName) ) {
 							user = user.replaceAll(lastName, "o");
+						}else{
+							changeLastName = true;
 						}
 					}
 					if (!(firstName.equals("")) && firstName.charAt(0)==users[i].charAt(0) && changeFirstName) {
 						user = user.replaceFirst(Character.toString(users[i].charAt(0)), "p");
 					}
-					if (!(lastName.equals("")) && lastName.charAt(0)==users[i].charAt(0)) {
+					if (!(lastName.equals("")) && lastName.charAt(0)==users[i].charAt(0) && changeLastName) {
 						user = user.replaceFirst(Character.toString(users[i].charAt(0)), "m");
 					}
 					if (ruleMap.containsValue(user)) {
@@ -258,20 +261,30 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("ERROR for 11 !");
-								System.out.println(users[i]+" and "+ctRef);
+//								System.out.println("ERROR for 11 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 12:
-//							System.out.println(12);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& firstName.charAt(0) == users[i].charAt(0) 
+									&& lastName.charAt(0) == users[i].charAt(1) ) {
 								write=true;
+							}else{
+								numberOfErrors++;
+//								System.out.println("ERROR for 12 !");
+//								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						case 13:
-//							System.out.println(13);
-							if (write) {
+							if (!firstName.equals("") && !lastName.equals("") 
+									&& lastName.charAt(0)==users[i].charAt(0) 
+									&& firstName.equals(users[i].substring(users[i].indexOf('.')+1))) {
 								write=true;
+							}else{
+								numberOfErrors++;
+								System.out.println("ERROR for 13 !");
+								System.out.println(users[i]+" and "+ctRef);
 							}
 							break;
 						default:
@@ -281,7 +294,7 @@ public class Commands extends DataAccess {
 						
 						if (write) {
 							write=false;
-//							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
+							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
 //							modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", getKeyByValue(ruleMap, user).toString());
 						}
 					}
