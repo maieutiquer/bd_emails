@@ -117,6 +117,7 @@ public class Commands extends DataAccess {
 		int ctRef=0;
 		int rule=0;
 		int numberOfErrors=0;
+		int numberOfWrites=0;
 		boolean write = false;
 		boolean changeFirstName = false;
 		boolean changeLastName = false;
@@ -160,8 +161,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 1 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 1, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 2:
@@ -171,8 +171,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 2 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 2, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 3:
@@ -182,8 +181,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 3 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 3, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 4:
@@ -191,8 +189,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 4 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 4, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 5:
@@ -202,8 +199,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 5 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 5, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 6:
@@ -211,8 +207,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 6 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 6, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 7:
@@ -222,15 +217,14 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 7 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 7, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 8:
 //							System.out.println(8);
+							// TODO : verify
 							numberOfErrors++;
-//							System.out.println("ERROR for 8 !");
-//							System.out.println(users[i]+" and "+ctRef);
+							System.out.println("Error for rule 8, user "+users[i]+" and ct_ref "+ctRef);
 							break;
 						case 9:
 							if (!firstName.equals("") && !lastName.equals("") 
@@ -239,8 +233,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 9 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 9, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 10:
@@ -250,8 +243,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("ERROR for 2 !");
-								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 10, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 11:
@@ -261,8 +253,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 11 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 11, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 12:
@@ -272,8 +263,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-//								System.out.println("ERROR for 12 !");
-//								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 12, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 13:
@@ -283,8 +273,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("ERROR for 13 !");
-								System.out.println(users[i]+" and "+ctRef);
+								System.out.println("Error for rule 13, user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						default:
@@ -294,12 +283,14 @@ public class Commands extends DataAccess {
 						
 						if (write) {
 							write=false;
-							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
-//							modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", getKeyByValue(ruleMap, user).toString());
+							numberOfWrites++;
+//							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
+							modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", getKeyByValue(ruleMap, user).toString());
 						}
 					}
 				}
 			}
+			System.out.println("Number of treated records: "+numberOfWrites);
 			System.out.println("Number of caught errors: "+numberOfErrors);
 //		}catch(Exception e){
 //			e.printStackTrace();
