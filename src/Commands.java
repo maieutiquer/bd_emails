@@ -8,10 +8,10 @@ import java.util.Map.Entry;
  * Has different commands that should be called from the main method.
  * 
  * @author Daniel
- *
+ * 
  */
 public class Commands extends DataAccess {
-	
+
 	private static final long serialVersionUID = 2448602180321858504L;
 	private static final String emptyGenderCond = 
 			"ct_genre IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')";
@@ -21,14 +21,14 @@ public class Commands extends DataAccess {
 			"ct_nom IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', 'z', 'Z', 'nc', 'NC')";
 	public static final String emptyEmailCond = 
 			"ct_mail IN ('', 'A DEFINIR', '68', '-', '.', 'definir', '?', '???', '84/12/39/44', " +
-			"'05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'N° INDISPONIBLE', 'REPONDEUR', " +
+			"'05/65/77/85/37', 'z', 'Z', 'nc', 'NC', 'non', 'PAS DE MAIL', 'Nï¿½ INDISPONIBLE', 'REPONDEUR', " +
 			"'en retraite', 'n\\'a pas de mail', 'pas de demarchage', 'email', '01.01.1981', 'fr', " +
 			"'REMPLACE MME SUINOT EN MALADIE', '01 47 68 12 63', '661261090', 'b', '603707107', " +
 			"'pas d\\'adresse e-mail', '630108886', 'pas adresse', 'aucune', '664998228', " +
 			"'pas de mail', 'pas d\\'e-mail', 'pas d\\'adresse', 'ne veut pas communiquer')";
 	private static final String emptyRowsCond = 
 			"("+emptyFirstnameCond+") AND ("+emptyLastnameCond+") AND ("+emptyEmailCond+")";
-	
+
 	/**
 	 * Has different commands that should be called from the main method.
 	 * 
@@ -41,36 +41,14 @@ public class Commands extends DataAccess {
 	}
 	
 	/**
-	 * Determines the rule for first name in emails 
-	 * and writes it in the corresponding column.
+	 * Creates a table with distinct cl_refs
 	 * 
-	 * @param table the table whose rows to process
+	 * @param sourceTable
+	 * @param destinationTable
 	 */
-	public void determineFirstNameRule(String table) {
-		Modify modify = new Modify();
-		Select select = new Select();
-		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
-		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
-		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
-		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
-		String[] userRules = select.selectStringFromWhere("regle_user", table, null);
-		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_prenom", null);
-		int[] ruleIds = select.selectIntFromWhere("id", "regle_prenom", null);
-		for (int i=0; i<emails.length; i++) {
-			int rule=-1;
-			int ct_ref = ct_refs[i];
-			String firstName = firstNames[i].toLowerCase();
-			String lastName = lastNames[i].toLowerCase();
-			String email = emails[i];
-			String userRule = userRules[i];
-			String ruleText = ruleTexts[i];
-			int ruleId = ruleIds[i];
-			
-			//TODO: process each value to determine the prenom rule, -1 for error
-			
-			
-			modify.modifyWhere(table, "ct_ref="+ct_ref, "regle_prenom", Integer.toString(rule));
-		}
+	public void fillClRefs(String sourceTable, String destinationTable) {
+		InsertRows insert = new InsertRows();
+		insert.insertDistinct(sourceTable, destinationTable, "cl_ref", "cl_ref");
 	}
 	
 	/**
@@ -90,6 +68,113 @@ public class Commands extends DataAccess {
 			System.out.println(ruleMap.get(i+1));
 		}
 		modify.modifyWhere(table, emptyCond, "regle_user", getKeyByValue(ruleMap, "v").toString());
+		int[] clRefRangeArray = select.selectIntFromWhere("cl_ref", table, emptyCond);
+		String clRefRange = "";
+		for (int i=0; i<clRefRangeArray.length; i++) {
+			clRefRange += Integer.toString(clRefRangeArray[i]) + ", ";
+		}
+		clRefRange = clRefRange.substring(0, clRefRange.length()-2); //removes the last comma
+		modify.modifyWhere("cl_ref_regles", "cl_ref IN ("+clRefRange+")", "rule", getKeyByValue(ruleMap, "v").toString());
+	}
+	
+	/**
+	 * Inserts hardcoded rules into the bd_emails table
+	 * 
+	 * @param table
+	 */
+	public void insertHardcodedRules(String table) {
+		Modify modify = new Modify();
+		Select select = new Select();
+		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
+		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
+		
+		HashMap<Integer,String> ruleMap = new HashMap<Integer,String>();
+		for (int i=0;i<ruleIds.length;i++) {
+			ruleMap.put(ruleIds[i], ruleTexts[i]);
+			System.out.println(ruleMap.get(i+1));
+		}
+		
+		modify.modifyWhere(table, "ct_ref=38737", "regle_user", "2");
+		modify.modifyWhere(table, "ct_ref=38737", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=38737"), "rule", "2");
+		modify.modifyWhere(table, "ct_ref=1687", "regle_user", "2");
+		modify.modifyWhere(table, "ct_ref=1687", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=1687"), "rule", "2");
+		modify.modifyWhere(table, "ct_ref=109771", "regle_user", "2");
+		modify.modifyWhere(table, "ct_ref=109771", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=109771"), "rule", "2");
+		modify.modifyWhere(table, "ct_ref=46919", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=46919", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=46919"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=113414", "regle_user", "2");
+		modify.modifyWhere(table, "ct_ref=113414", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=113414"), "rule", "2");
+		modify.modifyWhere(table, "ct_ref=109771", "regle_user", "2");
+		modify.modifyWhere(table, "ct_ref=109771", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=109771"), "rule", "2");
+		modify.modifyWhere(table, "ct_ref=5142", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=5142", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=5142"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=113475", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=113475", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=113475"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=23646", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=23646", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=23646"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=47936", "regle_user", "7");
+		modify.modifyWhere(table, "ct_ref=47936", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=47936"), "rule", "7");
+		modify.modifyWhere(table, "ct_ref=46594", "regle_user", "7");
+		modify.modifyWhere(table, "ct_ref=46594", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=46594"), "rule", "7");
+		modify.modifyWhere(table, "ct_ref=20782", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=20782", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=20782"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=21232", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=21232", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=21232"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=108149", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=108149", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=108149"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=22597", "regle_user", "12");
+		modify.modifyWhere(table, "ct_ref=22597", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=22597"), "rule", "12");
+		modify.modifyWhere(table, "ct_ref=6061", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=6061", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=6061"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=54630", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=54630", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=54630"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=24422", "regle_user", "12");
+		modify.modifyWhere(table, "ct_ref=24422", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=24422"), "rule", "12");
+		modify.modifyWhere(table, "ct_ref=10338", "regle_user", getKeyByValue(ruleMap, "n").toString());
+		modify.modifyWhere(table, "ct_ref=10338", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=10338"), "rule", getKeyByValue(ruleMap, "n").toString());
+		modify.modifyWhere(table, "ct_ref=10337", "regle_user", getKeyByValue(ruleMap, "n").toString());
+		modify.modifyWhere(table, "ct_ref=10337", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=10337"), "rule", getKeyByValue(ruleMap, "n").toString());
+		modify.modifyWhere(table, "ct_ref=48763", "regle_user", "12");
+		modify.modifyWhere(table, "ct_ref=48763", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=48763"), "rule", "12");
+		modify.modifyWhere(table, "ct_ref=39107", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=39107", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=39107"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=99537", "regle_user", "7");
+		modify.modifyWhere(table, "ct_ref=99537", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=99537"), "rule", "7");
+		modify.modifyWhere(table, "ct_ref=47936", "regle_user", "7");
+		modify.modifyWhere(table, "ct_ref=47936", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=47936"), "rule", "7");
+		modify.modifyWhere(table, "ct_ref=38988", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=38988", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=38988"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=23646", "regle_user", "3");
+		modify.modifyWhere(table, "ct_ref=23646", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=23646"), "rule", "3");
+		modify.modifyWhere(table, "ct_ref=82219", "regle_user", getKeyByValue(ruleMap, "n").toString());
+		modify.modifyWhere(table, "ct_ref=82219", "controle", "1");
+		modify.modifyWhere("cl_ref_regles", "cl_ref="+select.selectField("cl_ref", table, "ct_ref=82219"), "rule", getKeyByValue(ruleMap, "n").toString());
 	}
 	
 	/**
@@ -98,16 +183,19 @@ public class Commands extends DataAccess {
 	 * 
 	 * @param table the table whose rows to process
 	 */
-	public void determineUserRule(String table) {
+	public void determineUserRules(String table) {
 		Modify modify = new Modify();
 		Select select = new Select();
-		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
 		String[] users = select.selectStringFromWhere("user", table, null);
 		String[] ruleTexts = select.selectStringFromWhere("rule", "regle_user", null);
+		int[] ct_refs = select.selectIntFromWhere("ct_ref", table, null);
+		int[] clRefs = select.selectIntFromWhere("cl_ref", table, null);
 		int[] ruleIds = select.selectIntFromWhere("id", "regle_user", null);
 		int[] allRules = select.selectIntFromWhere("regle_user", table, null);
+		int[] clRefsOrdered = select.selectIntFromWhere("cl_ref", "cl_ref_regles", null);
+		int[] clRefsOrderedRules = select.selectIntFromWhere("rule", "cl_ref_regles", null);
 		
 		HashMap<Integer,String> ruleMap = new HashMap<Integer,String>();
 		for (int i=0;i<ruleIds.length;i++) {
@@ -118,14 +206,19 @@ public class Commands extends DataAccess {
 		int rule=0;
 		int numberOfErrors=0;
 		int numberOfWrites=0;
+		int clRefPosition=0;
 		boolean write = false;
 		boolean changeFirstName = false;
 		boolean changeLastName = false;
+		String user = "";
+		Arrays.sort(clRefsOrdered);
+		
 //		try{
-			for (int i=0; i<users.length; i++) {
-				String user = "";
-				user = users[i];
-				if (allRules[i]!=getKeyByValue(ruleMap, "v") && !user.equals("")){
+		for (int i=0; i<users.length; i++) {
+			user = users[i];
+			clRefPosition = Arrays.binarySearch(clRefsOrdered, clRefs[i]);
+			if (allRules[i]!=getKeyByValue(ruleMap, "v") && !user.equals("")){
+				if (clRefsOrderedRules[clRefPosition]==0) {
 					changeFirstName = false;
 					ctRef = ct_refs[i];
 					String firstName = firstNames[i].toLowerCase();
@@ -161,7 +254,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 1, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 2:
@@ -171,7 +264,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 2, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 3:
@@ -181,7 +274,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 3, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 4:
@@ -189,7 +282,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 4, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 5:
@@ -199,7 +292,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 5, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 6:
@@ -207,7 +300,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 6, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 7:
@@ -217,14 +310,8 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 7, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
-							break;
-						case 8:
-//							System.out.println(8);
-							// TODO : verify
-							numberOfErrors++;
-							System.out.println("Error for rule 8, user "+users[i]+" and ct_ref "+ctRef);
 							break;
 						case 9:
 							if (!firstName.equals("") && !lastName.equals("") 
@@ -233,7 +320,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 9, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 10:
@@ -243,7 +330,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 10, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 11:
@@ -253,7 +340,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 11, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 12:
@@ -263,7 +350,7 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 12, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						case 13:
@@ -273,33 +360,43 @@ public class Commands extends DataAccess {
 								write=true;
 							}else{
 								numberOfErrors++;
-								System.out.println("Error for rule 13, user "+users[i]+" and ct_ref "+ctRef);
+								System.out.println("Error for rule "+rule+", prenom "+firstName+", nom "+lastName+", user "+users[i]+" and ct_ref "+ctRef);
 							}
 							break;
 						default:
 							write=false;
 							break;
 						}
-						
+
 						if (write) {
 							write=false;
 							numberOfWrites++;
 //							System.out.println("At "+ctRef+" is "+getKeyByValue(ruleMap, user));
 							modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", getKeyByValue(ruleMap, user).toString());
+							modify.modifyWhere(table, "ct_ref="+ctRef, "controle", "1");
+							modify.modifyWhere("cl_ref_regles", "cl_ref="+clRefPosition, "rule", Integer.toString(rule));
 						}
 					}
+					
+				}else{
+					ctRef = ct_refs[i];
+					user = users[i];
+					modify.modifyWhere(table, "ct_ref="+ctRef, "regle_user", 
+							select.selectField("rule", "cl_ref_regles", "cl_ref="+clRefs[i]));
+					modify.modifyWhere(table, "ct_ref="+ctRef, "controle", "2");
 				}
 			}
-			System.out.println("Number of treated records: "+numberOfWrites);
-			System.out.println("Number of caught errors: "+numberOfErrors);
+		}
+		System.out.println("Number of treated records: "+numberOfWrites);
+		System.out.println("Number of caught errors: "+numberOfErrors);
 //		}catch(Exception e){
 //			e.printStackTrace();
 //			System.out.println("error at ct_ref: "+ct_ref);
 //		}
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Determines the username of the email. Takes the part of the email before the domain.
 	 * 
@@ -329,7 +426,7 @@ public class Commands extends DataAccess {
 			}
 		}
 	}
-	
+
 	/**
 	 * Copies clients with non-isp domains to their own table.
 	 * 
@@ -348,7 +445,7 @@ public class Commands extends DataAccess {
 		String where = "`domaines` NOT IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
-	
+
 	/**
 	 * Copies clients with ips domains to their own table.
 	 * 
@@ -367,7 +464,7 @@ public class Commands extends DataAccess {
 		String where = "`domaines` IN ("+isp+")";
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
-	
+
 	/**
 	 * Cleans the cl_ref of a certain table. Depricated because useless.
 	 * 
@@ -400,7 +497,7 @@ public class Commands extends DataAccess {
 		}
 		System.out.println("Number of modifications: "+count);
 	}
-	
+
 	/**
 	 * Returns the key, corresponding to a certain value 
 	 * 
@@ -416,7 +513,7 @@ public class Commands extends DataAccess {
 	    }
 	    return null;
 	}
-	
+
 	/**
 	 * Converts all emails from a table to lowercase letters.
 	 * 
@@ -427,7 +524,7 @@ public class Commands extends DataAccess {
 		modify.convertColumnValuesToLowercase(table, "ct_mail");
 		System.out.println("Converted to minuscule all email values from table "+table);
 	}
-	
+
 	/**
 	 * Converts all domains from a table to lowercase letters.
 	 * 
@@ -438,8 +535,8 @@ public class Commands extends DataAccess {
 		modify.convertColumnValuesToLowercase(table, "domaines");
 		System.out.println("Converted to minuscule all domain values from table "+table);
 	}
-	
-	
+
+
 	/**
 	 * Prints the number of dedoubled clients.
 	 * 
@@ -451,7 +548,7 @@ public class Commands extends DataAccess {
 		int dedoubled=counter.countDistinct("cl_ref_original", table, where);
 		System.out.println("Number of dedoubled clients: "+dedoubled);
 	}
-	
+
 	/**
 	 * Fills a new table with cl_ref
 	 * 
@@ -465,10 +562,10 @@ public class Commands extends DataAccess {
 //		int totalClref = counter.countDistinct("cl_ref", sourceTable, null);
 		int[] companies = select.selectIntFromWhere("cl_ref", sourceTable, null);
 		String[] domains = select.selectStringFromWhere("domaines", sourceTable, null);
-		
+
 		System.out.println("Total cl_ref entries in table "+sourceTable+" : "+companies.length);
 		System.out.println("Total domaines entries in table "+sourceTable+" : "+domains.length);
-		
+
 		int insertedNewClref = 0;
 	    for(int i=0; i < companies.length; i++){
 	    	domains[i] = domains[i].replaceAll("'", "\\\\'"); // the char ' is replaced with \'
@@ -485,7 +582,7 @@ public class Commands extends DataAccess {
 	    }
 	    System.out.println("Inserted new cl_ref : "+insertedNewClref);
 	}
-	
+
 	/**
 	 * Writes the number of users of each domain into the domains table.
 	 * 
@@ -497,7 +594,7 @@ public class Commands extends DataAccess {
 		RowCounter counter = new RowCounter();
 		Modify modify = new Modify();
 		int totalDomains = counter.countAll(ispDomainsTable);
-		
+
 		for(int i=0;i<totalDomains;i++){
 			String whereId = "id="+(i+1);
 			String domainName = select.selectField("name", ispDomainsTable, whereId);
@@ -507,7 +604,7 @@ public class Commands extends DataAccess {
 			modify.modifyWhere(ispDomainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
 		}
 	}
-	
+
 	public void countDomainsWithOneAddress(String sourceTable, String domainsTable) {
 		Select select = new Select();
 		RowCounter counter = new RowCounter();
@@ -526,7 +623,7 @@ public class Commands extends DataAccess {
 		System.out.println("Total domains in "+domainsTable+
 				" with one address in "+sourceTable+" : "+result);
 	}
-	
+
 	/**
 	 * Counts distinct values in a column of a given table. 
 	 * 
@@ -538,7 +635,7 @@ public class Commands extends DataAccess {
 		int distinctValues = counter.countDistinct(column, table, null);
 		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
 	}
-	
+
 	/**
 	 * Counts domains with a given number of users.
 	 * 
@@ -551,7 +648,7 @@ public class Commands extends DataAccess {
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfCompanies+" companies: "+result);
 	}
-	
+
 	/**
 	 * Writes the number of distinct companies of each domain into the domains table.
 	 * 
@@ -572,7 +669,7 @@ public class Commands extends DataAccess {
 			modify.modifyWhere(domainsTable, whereId, "number_of_companies", Integer.toString(totalUsers));
 		}
 	}
-	
+
 	/**
 	 * Counts domains with a given number of users.
 	 * 
@@ -585,7 +682,7 @@ public class Commands extends DataAccess {
 		int result = counter.countFromWhere(table, where);
 		System.out.println("Number of domains (in table "+table+") with "+numberOfUsers+" users: "+result);
 	}
-	
+
 	/**
 	 * Writes the number of users of each domain into the domains table.
 	 * 
@@ -606,12 +703,12 @@ public class Commands extends DataAccess {
 			modify.modifyWhere(domainsTable, whereId, "number_of_users", Integer.toString(totalUsers));
 		}
 	}
-	
+
 	public void cloneTable(String source, String cloned){
 		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(source, cloned, null);
 	}
-	
+
 	/**
 	 * Copies distinct domains to a new table
 	 * 
@@ -622,7 +719,7 @@ public class Commands extends DataAccess {
 		InsertRows insert = new InsertRows();
 		insert.insertDistinct(sourceTable, newTable, "domaines", "name");
 	}
-	
+
 	/**
 	 * Copies empty rows to a new table.
 	 * 
@@ -635,7 +732,7 @@ public class Commands extends DataAccess {
 		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(sourceTable, newTable, where);
 	}
-	
+
 	/**
 	 * Counts all rows from a table.
 	 * 
@@ -646,7 +743,7 @@ public class Commands extends DataAccess {
 		System.out.println("Total rows in "+table+" : " 
 				+ counter.countAll(table));
 	}
-	
+
 	/**
 	 * Counts the number of rows without gender from a given table.
 	 * 
@@ -654,14 +751,14 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyDomain(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = "domaines IS NULL"; 
-		
+
 		System.out.println("Total rows with empty domain in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Counts the number of rows without gender from a given table.
 	 * 
@@ -669,14 +766,14 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyUser(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = "user IS NULL"; 
-		
+
 		System.out.println("Total rows with empty user in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Counts the number of rows without gender from a given table.
 	 * 
@@ -684,14 +781,14 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyGender(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = emptyGenderCond; 
-		
+
 		System.out.println("Total rows with empty gender in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Counts the number of rows without email from a given table.
 	 * 
@@ -699,14 +796,14 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyEmail(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = emptyEmailCond; 
-		
+
 		System.out.println("Total rows with empty email in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Counts the number of rows without first name from a given table.
 	 * 
@@ -714,14 +811,14 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyLastname(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = emptyLastnameCond; 
-		
+
 		System.out.println("Total rows with empty last name in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Counts the number of rows without last name from a given table.
 	 * 
@@ -729,10 +826,10 @@ public class Commands extends DataAccess {
 	 */
 	public void countEmptyFirstname(String table) {
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = emptyFirstnameCond; 
-		
+
 		System.out.println("Total rows with empty first name in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
@@ -745,12 +842,12 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countEmpty(String table){
-		
+
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = emptyRowsCond; 
-		
+
 		System.out.println("Total empty rows in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
@@ -763,16 +860,16 @@ public class Commands extends DataAccess {
 	 * @param table the table that should be checked
 	 */
 	public void countNonEmpty(String table){
-		
+
 		RowCounter counter = new RowCounter();
-		
+
 		//we define the condition to select specific rows and to count them
 		String where = "NOT ("+emptyRowsCond+")";
-		
+
 		System.out.println("Total non-empty rows in "+table+" : " 
 				+ counter.countFromWhere(table, where));
 	}
-	
+
 	/**
 	 * Gives total columns number and prints each column's name of a given table from the database. 
 	 * 
@@ -786,7 +883,7 @@ public class Commands extends DataAccess {
 			System.out.println("Column " + i + " : " + columnsList[i]);
 		}
 	}
-	
+
 	/**
 	 * Takes non-empty clients and writes them to a new table, thus avoiding deletion.
 	 * <br />Should be run once per destination table 
@@ -795,14 +892,14 @@ public class Commands extends DataAccess {
 	 * @param toTable the destination table to write values into
 	 */
 	public void copyNonEmpty(String fromTable, String toTable){
-		
+
 		//we define the condition to select specific rows and insert them in another table
 		String where = "NOT ("+emptyRowsCond+")"; 
-		
+
 		CopyTable copy = new CopyTable();
 		copy.copyTableFromWhere(fromTable, toTable, where);
 	}
-	
+
 	/**
 	 * Takes empty clients and writes them to a new table, allowing export of empty rows.
 	 * <br />Should be <b>run once</b> per destination table.
@@ -811,13 +908,13 @@ public class Commands extends DataAccess {
 	 * @param toTable
 	 */
 	public void insertEmpty(String fromTable, String toTable){
-		
+
 		//we define the condition to select specific rows and insert them in another table
 		String where = emptyRowsCond; 
-		
+
 		InsertRows insert = new InsertRows();
 		insert.copyRowsFromWhere(fromTable, toTable, where);
 	}
-	
-	
+
+
 }
