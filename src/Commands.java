@@ -40,6 +40,56 @@ public class Commands extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
+	public void markUseful(String table) {
+		Counter counter = new Counter();
+		Select select = new Select();
+		Modify modify = new Modify();
+		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
+		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
+		int[] ctRefs = select.selectIntFromWhere("ct_ref", table, null);
+		int[] clRefs = select.selectIntFromWhere("cl_ref", table, null);
+		int[] treated = new int[12000];
+		
+		String firstName;
+		String lastName;
+		int ctRef;
+		int clRef;
+		String[] currentFirstNames;
+		String[] currentLastNames;
+		int[] currentCtRefs;
+		int numberOfSelects=0;
+		for (int i=0;i<ctRefs.length;i++) {
+			clRef = clRefs[i];
+			if (treated[clRef] != 1 && counter.countFromWhere(table, "cl_ref="+clRef) > 1) {
+//				selectCurrent(table, firstNames[i], lastNames[i], ctRefs[i], clRefs[i]);
+				firstName = firstNames[i];
+				lastName = lastNames[i];
+				ctRef = ctRefs[i];
+				currentFirstNames = select.selectStringFromWhere("ct_prenom", table, "cl_ref="+clRef);
+				currentLastNames = select.selectStringFromWhere("ct_nom", table, "cl_ref="+clRef);
+				currentCtRefs = select.selectIntFromWhere("ct_ref", table, "cl_ref="+clRef);
+				numberOfSelects+=3;
+				System.out.println("test"+numberOfSelects);
+//				for (int j=0; j<currentCtRefs.length;j++) {
+//					System.out.println(clRef);
+//				}
+			}
+		}
+	}
+	
+	public void selectCurrent(String table, String firstName, String lastName, int ctRef, int clRef ) {
+		Select select = new Select();
+		String[] currentFirstNames = select.selectStringFromWhere("ct_prenom", table, "cl_ref="+clRef);
+		String[] currentLastNames = select.selectStringFromWhere("ct_nom", table, "cl_ref="+clRef);
+		int[] currentCtRefs = select.selectIntFromWhere("ct_ref", table, "cl_ref="+clRef);
+//		for (int i=0; i<currentCtRefs.length;i++) {
+//			System.out.println(clRef+" and "+currentFirstNames[i]+" and "+currentLastNames[i]+" and "+currentCtRefs[i]);
+//		}
+		currentFirstNames=null;
+		currentLastNames=null;
+		currentCtRefs=null;
+	}
+	
 	public void countMastersAndSlaves(String table) {
 		Counter counter = new Counter();
 		Select select = new Select();
