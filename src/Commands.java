@@ -1,4 +1,3 @@
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +9,7 @@ import java.util.Map.Entry;
  * @author Daniel
  * 
  */
-public class Commands extends DataAccess {
+public class TreatmentCommands extends DataAccess {
 
 	private static final long serialVersionUID = 2448602180321858504L;
 	private static final String emptyGenderCond = 
@@ -36,7 +35,7 @@ public class Commands extends DataAccess {
 	 * @param user the username
 	 * @param pwd the password
 	 */
-	public Commands(String dbName, String user, String pwd) {
+	public TreatmentCommands(String dbName, String user, String pwd) {
 		super(dbName, user, pwd);
 	}
 	
@@ -44,37 +43,72 @@ public class Commands extends DataAccess {
 		Counter counter = new Counter();
 		Select select = new Select();
 		Modify modify = new Modify();
+		String[] ctRefs = select.selectStringFromWhere("ct_ref", table, null);
+		String[] clRefs = select.selectStringFromWhere("cl_ref", table, null);
 		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
 		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
-		int[] ctRefs = select.selectIntFromWhere("ct_ref", table, null);
-		int[] clRefs = select.selectIntFromWhere("cl_ref", table, null);
+		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
 		int[] treated = new int[12000];
 		
-		String firstName;
-		String lastName;
-		int ctRef;
-		int clRef;
-		String[] currentFirstNames;
-		String[] currentLastNames;
-		int[] currentCtRefs;
-		int numberOfSelects=0;
-		for (int i=0;i<ctRefs.length;i++) {
-			clRef = clRefs[i];
-			if (treated[clRef] != 1 && counter.countFromWhere(table, "cl_ref="+clRef) > 1) {
-//				selectCurrent(table, firstNames[i], lastNames[i], ctRefs[i], clRefs[i]);
-				firstName = firstNames[i];
-				lastName = lastNames[i];
-				ctRef = ctRefs[i];
-				currentFirstNames = select.selectStringFromWhere("ct_prenom", table, "cl_ref="+clRef);
-				currentLastNames = select.selectStringFromWhere("ct_nom", table, "cl_ref="+clRef);
-				currentCtRefs = select.selectIntFromWhere("ct_ref", table, "cl_ref="+clRef);
-				numberOfSelects+=3;
-				System.out.println("test"+numberOfSelects);
-//				for (int j=0; j<currentCtRefs.length;j++) {
-//					System.out.println(clRef);
-//				}
+		String[][] localTable = new String[5][ctRefs.length];
+		localTable[0] = ctRefs;
+		localTable[1] = clRefs;
+		localTable[2] = firstNames;
+		localTable[3] = lastNames;
+		localTable[4] = emails;
+		
+		for (int i=0; i<ctRefs.length; i++) {
+			int clRef = Integer.parseInt(clRefs[i]);
+			boolean hasColleagues = false;
+			for (int j=0; j<ctRefs.length; j++) {
+				if (Integer.parseInt(localTable[1][j])==clRef) {
+					hasColleagues=true;
+					break;
+				}
 			}
+			
+			if (treated[clRef] != 1 && hasColleagues) {
+				treated[clRef]=1;
+				for (int j=0; j<ctRefs.length; j++) {
+					boolean hasNames = false;
+					boolean hasMail = false;
+					if ( ( !localTable[2][j].equals("") || localTable[2][j].equals("A DEFINIR") || localTable[2][j].equals("68") 
+							|| localTable[2][j].equals("-") || localTable[2][j].equals(".") || localTable[2][j].equals("definir") 
+							|| localTable[2][j].equals("?") || localTable[2][j].equals("???") || localTable[2][j].equals("z") 
+							|| localTable[2][j].equals("Z") || localTable[2][j].equals("nc") || localTable[2][j].equals("NC") ) && 
+							( !localTable[3][j].equals("") || localTable[3][j].equals("A DEFINIR") || localTable[3][j].equals("68") 
+									|| localTable[3][j].equals("-") || localTable[3][j].equals(".") || localTable[3][j].equals("definir") 
+									|| localTable[3][j].equals("?") || localTable[3][j].equals("???") || localTable[3][j].equals("z") 
+									|| localTable[3][j].equals("Z") || localTable[3][j].equals("nc") || localTable[3][j].equals("NC") )) {
+						hasNames=true;
+					}
+					if (!localTable[4][j].equals("") || !localTable[4][j].equals(" DEFINIR") || !localTable[4][j].equals("68") || !localTable[4][j].equals("-") || 
+							!localTable[4][j].equals(".") || !localTable[4][j].equals("definir") || !localTable[4][j].equals("?") || !localTable[4][j].equals("???") || 
+							!localTable[4][j].equals("84/12/39/44") || !localTable[4][j].equals("05/65/77/85/37") || !localTable[4][j].equals("z") || !localTable[4][j].equals("Z") || 
+							!localTable[4][j].equals("nc") || !localTable[4][j].equals("NC") || !localTable[4][j].equals("non") || !localTable[4][j].equals("PAS DE MAIL") || 
+							!localTable[4][j].equals("Nº INDISPONIBLE") || !localTable[4][j].equals("REPONDEUR") || !localTable[4][j].equals("en retraite") || !localTable[4][j].equals("n'a pas de mail") || 
+							!localTable[4][j].equals("pas de demarchage") || !localTable[4][j].equals("email") || !localTable[4][j].equals("01.01.1981") || !localTable[4][j].equals("fr") || 
+							!localTable[4][j].equals("REMPLACE MME SUINOT EN MALADIE") || !localTable[4][j].equals("01 47 68 12 63") || !localTable[4][j].equals("661261090") || !localTable[4][j].equals("b") || 
+							!localTable[4][j].equals("603707107") || !localTable[4][j].equals("pas d'adresse e-mail") || !localTable[4][j].equals("630108886") || !localTable[4][j].equals("pas adresse") || 
+							!localTable[4][j].equals("aucune") || !localTable[4][j].equals("664998228") || !localTable[4][j].equals("pas de mail") || !localTable[4][j].equals("pas d'e-mail") || 
+							!localTable[4][j].equals("pas d'adresse") || !localTable[4][j].equals("ne veut pas communiquer")) {
+						hasMail=true;
+					}
+					if (Integer.parseInt(localTable[1][j])==clRef && hasMail && hasNames) {
+						
+					}
+				}
+				System.out.println("Treated!");
+			}
+			System.out.println("Jumping to next client.");
 		}
+		
+//		for (int i=0; i<5; i++) {
+//			for (int j=0; j<ctRefs.length; j++) {
+//				System.out.println(localTable[i][j]);
+//			}
+//		}
+		
 	}
 	
 	public void selectCurrent(String table, String firstName, String lastName, int ctRef, int clRef ) {
