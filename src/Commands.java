@@ -39,16 +39,17 @@ public class TreatmentCommands extends DataAccess {
 		super(dbName, user, pwd);
 	}
 	
-	public void markUseful(String table) {
+	public void exportUseful(String fromTable, String toTable) {
 		Counter counter = new Counter();
 		Select select = new Select();
 		Modify modify = new Modify();
-		String[] ctRefs = select.selectStringFromWhere("ct_ref", table, null);
-		String[] clRefs = select.selectStringFromWhere("cl_ref", table, null);
-		String[] firstNames = select.selectStringFromWhere("ct_prenom", table, null);
-		String[] lastNames = select.selectStringFromWhere("ct_nom", table, null);
-		String[] emails = select.selectStringFromWhere("ct_mail", table, null);
-		int[] treated = new int[12000];
+		InsertRows insert = new InsertRows();
+		String[] ctRefs = select.selectStringFromWhere("ct_ref", fromTable, null);
+		String[] clRefs = select.selectStringFromWhere("cl_ref", fromTable, null);
+		String[] firstNames = select.selectStringFromWhere("ct_prenom", fromTable, null);
+		String[] lastNames = select.selectStringFromWhere("ct_nom", fromTable, null);
+		String[] emails = select.selectStringFromWhere("ct_mail", fromTable, null);
+		boolean[] treated = new boolean[12000];
 		
 		String[][] localTable = new String[5][ctRefs.length];
 		localTable[0] = ctRefs;
@@ -59,49 +60,67 @@ public class TreatmentCommands extends DataAccess {
 		
 		for (int i=0; i<ctRefs.length; i++) {
 			int clRef = Integer.parseInt(clRefs[i]);
-			boolean hasColleagues = false;
+			if (treated[clRef] == true) {
+				System.out.println("This client's enterprise ("+clRef+") has already been treated. Jumping to next client.");
+				continue;
+			}else{
+				treated[clRef] = true;
+				System.out.println("Beginning treatment of enterprise "+clRef+" ...");
+			}
+			boolean existsMainClient = false;
+			boolean existsNoNameClient = false;
+			boolean existsNoEmailClient = false;
+			boolean[] toCopyClRef = new boolean[12000];
+			boolean[] toCopyCtRef = new boolean[120000];
 			for (int j=0; j<ctRefs.length; j++) {
 				if (Integer.parseInt(localTable[1][j])==clRef) {
-					hasColleagues=true;
-					break;
-				}
-			}
-			
-			if (treated[clRef] != 1 && hasColleagues) {
-				treated[clRef]=1;
-				for (int j=0; j<ctRefs.length; j++) {
-					boolean hasNames = false;
-					boolean hasMail = false;
-					if ( ( !localTable[2][j].equals("") || localTable[2][j].equals("A DEFINIR") || localTable[2][j].equals("68") 
-							|| localTable[2][j].equals("-") || localTable[2][j].equals(".") || localTable[2][j].equals("definir") 
-							|| localTable[2][j].equals("?") || localTable[2][j].equals("???") || localTable[2][j].equals("z") 
-							|| localTable[2][j].equals("Z") || localTable[2][j].equals("nc") || localTable[2][j].equals("NC") ) && 
-							( !localTable[3][j].equals("") || localTable[3][j].equals("A DEFINIR") || localTable[3][j].equals("68") 
-									|| localTable[3][j].equals("-") || localTable[3][j].equals(".") || localTable[3][j].equals("definir") 
-									|| localTable[3][j].equals("?") || localTable[3][j].equals("???") || localTable[3][j].equals("z") 
-									|| localTable[3][j].equals("Z") || localTable[3][j].equals("nc") || localTable[3][j].equals("NC") )) {
-						hasNames=true;
+					boolean hasName = false;
+					boolean hasEmail = false;
+					if ( !isEmpty(localTable, 2, j)  || !isEmpty(localTable, 3, j)) {
+						System.out.println("Client "+j+" has name.");
+						hasName=true;
 					}
-					if (!localTable[4][j].equals("") || !localTable[4][j].equals(" DEFINIR") || !localTable[4][j].equals("68") || !localTable[4][j].equals("-") || 
-							!localTable[4][j].equals(".") || !localTable[4][j].equals("definir") || !localTable[4][j].equals("?") || !localTable[4][j].equals("???") || 
-							!localTable[4][j].equals("84/12/39/44") || !localTable[4][j].equals("05/65/77/85/37") || !localTable[4][j].equals("z") || !localTable[4][j].equals("Z") || 
-							!localTable[4][j].equals("nc") || !localTable[4][j].equals("NC") || !localTable[4][j].equals("non") || !localTable[4][j].equals("PAS DE MAIL") || 
-							!localTable[4][j].equals("Nº INDISPONIBLE") || !localTable[4][j].equals("REPONDEUR") || !localTable[4][j].equals("en retraite") || !localTable[4][j].equals("n'a pas de mail") || 
-							!localTable[4][j].equals("pas de demarchage") || !localTable[4][j].equals("email") || !localTable[4][j].equals("01.01.1981") || !localTable[4][j].equals("fr") || 
-							!localTable[4][j].equals("REMPLACE MME SUINOT EN MALADIE") || !localTable[4][j].equals("01 47 68 12 63") || !localTable[4][j].equals("661261090") || !localTable[4][j].equals("b") || 
-							!localTable[4][j].equals("603707107") || !localTable[4][j].equals("pas d'adresse e-mail") || !localTable[4][j].equals("630108886") || !localTable[4][j].equals("pas adresse") || 
-							!localTable[4][j].equals("aucune") || !localTable[4][j].equals("664998228") || !localTable[4][j].equals("pas de mail") || !localTable[4][j].equals("pas d'e-mail") || 
-							!localTable[4][j].equals("pas d'adresse") || !localTable[4][j].equals("ne veut pas communiquer")) {
-						hasMail=true;
+					if (!isEmpty(localTable, 4, j)) {
+						System.out.println("Client "+j+" has email.");
+						hasEmail=true;
 					}
-					if (Integer.parseInt(localTable[1][j])==clRef && hasMail && hasNames) {
-						
+					if (hasName && hasEmail) {
+						System.out.println("This client can be used to form rules (main client).");
+						existsMainClient = true;
+					}
+					if (!hasName && hasEmail) {
+						System.out.println("This client should have its name filled.");
+						existsNoNameClient = true;
+					}
+					if (hasName && !hasEmail) {
+						System.out.println("This client should have its email filled.");
+						existsNoEmailClient = true;
+					}
+					if (hasName || hasEmail) {
+						toCopyCtRef[j] = true;
 					}
 				}
-				System.out.println("Treated!");
 			}
-			System.out.println("Jumping to next client.");
+			if (existsMainClient &&  existsNoEmailClient) {
+				toCopyClRef[clRef] = true;
+			}
+			for (int j=0; j<ctRefs.length; j++) {
+				if (Integer.parseInt(localTable[1][j])==clRef) {
+					if (toCopyCtRef[j] && toCopyClRef[clRef]) {
+						//TODO: write line to csv file
+						System.out.print("Writing client "+j+" to DB...");
+						insert.insertRow(toTable, "`ct_ref`, `cl_ref`, `ct_prenom`, `ct_nom`, `ct_mail`", "'"+j+"', '"+clRef+"', '"
+						+localTable[2][j].replaceAll("'", "\\\\'")
+						+"', '"+localTable[3][j].replaceAll("'", "\\\\'")
+						+"', '"+localTable[4][j].replaceAll("'", "\\\\'")+"'");
+						System.out.println(" success.");
+					}
+				}
+			}
+			System.out.println("Treatment of this enterprise finished.");
 		}
+		
+		
 		
 //		for (int i=0; i<5; i++) {
 //			for (int j=0; j<ctRefs.length; j++) {
@@ -109,6 +128,26 @@ public class TreatmentCommands extends DataAccess {
 //			}
 //		}
 		
+	}
+	
+	public boolean isEmpty(String[][] localTable, int i, int j) {
+		if (  localTable[i][j].equals("") || localTable[i][j].equals("A DEFINIR") || localTable[i][j].equals("68") ||
+				localTable[i][j].equals("-") || localTable[i][j].equals(".") || localTable[i][j].equals("definir") || 
+				localTable[i][j].equals("?") || localTable[i][j].equals("???") || localTable[i][j].equals("z") || 
+				localTable[i][j].equals("Z") || localTable[i][j].equals("nc") || localTable[i][j].equals("NC") ||
+				localTable[i][j].equals(" DEFINIR") || localTable[i][j].equals("68") || localTable[i][j].equals("-") || 
+				localTable[i][j].equals(".") || localTable[i][j].equals("definir") || localTable[i][j].equals("?") || localTable[i][j].equals("???") || 
+				localTable[i][j].equals("84/12/39/44") || localTable[i][j].equals("05/65/77/85/37") || localTable[i][j].equals("z") || localTable[i][j].equals("Z") || 
+				localTable[i][j].equals("nc") || localTable[i][j].equals("NC") || localTable[i][j].equals("non") || localTable[i][j].equals("PAS DE MAIL") || 
+				localTable[i][j].equals("Nº INDISPONIBLE") || localTable[i][j].equals("REPONDEUR") || localTable[i][j].equals("en retraite") || localTable[i][j].equals("n'a pas de mail") || 
+				localTable[i][j].equals("pas de demarchage") || localTable[i][j].equals("email") || localTable[i][j].equals("01.01.1981") || localTable[i][j].equals("fr") || 
+				localTable[i][j].equals("REMPLACE MME SUINOT EN MALADIE") || localTable[i][j].equals("01 47 68 12 63") || localTable[i][j].equals("661261090") || localTable[i][j].equals("b") || 
+				localTable[i][j].equals("603707107") || localTable[i][j].equals("pas d'adresse e-mail") || localTable[i][j].equals("630108886") || localTable[i][j].equals("pas adresse") || 
+				localTable[i][j].equals("aucune") || localTable[i][j].equals("664998228") || localTable[i][j].equals("pas de mail") || localTable[i][j].equals("pas d'e-mail") || 
+				localTable[i][j].equals("pas d'adresse") || localTable[i][j].equals("ne veut pas communiquer")) {
+			return true;
+		}
+		return false;
 	}
 	
 	public void selectCurrent(String table, String firstName, String lastName, int ctRef, int clRef ) {
