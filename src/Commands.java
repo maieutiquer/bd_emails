@@ -60,18 +60,20 @@ public class TreatmentCommands extends DataAccess {
 		
 		for (int i=0; i<ctRefs.length; i++) {
 			int clRef = Integer.parseInt(clRefs[i]);
-			if (treated[clRef] == true) {
+			boolean existsMainClient = false;
+			boolean existsNoNameClient = false;
+			boolean existsNoEmailClient = false;
+			boolean[] toCopyClRef = new boolean[12000];
+			boolean[] toCopyCtRef = new boolean[120000];
+			boolean[] mainClients = new boolean[120000];
+			boolean mainClientCopied = false;
+			if (treated[clRef] == true || clRef == 10624) {
 				System.out.println("This client's enterprise ("+clRef+") has already been treated. Jumping to next client.");
 				continue;
 			}else{
 				treated[clRef] = true;
 				System.out.println("Beginning treatment of enterprise "+clRef+" ...");
 			}
-			boolean existsMainClient = false;
-			boolean existsNoNameClient = false;
-			boolean existsNoEmailClient = false;
-			boolean[] toCopyClRef = new boolean[12000];
-			boolean[] toCopyCtRef = new boolean[120000];
 			for (int j=0; j<ctRefs.length; j++) {
 				if (Integer.parseInt(localTable[1][j])==clRef) {
 					boolean hasName = false;
@@ -87,6 +89,7 @@ public class TreatmentCommands extends DataAccess {
 					if (hasName && hasEmail) {
 						System.out.println("This client can be used to form rules (main client).");
 						existsMainClient = true;
+						mainClients[j] = true;
 					}
 					if (!hasName && hasEmail) {
 						System.out.println("This client should have its name filled.");
@@ -105,9 +108,10 @@ public class TreatmentCommands extends DataAccess {
 				toCopyClRef[clRef] = true;
 			}
 			for (int j=0; j<ctRefs.length; j++) {
-				if (Integer.parseInt(localTable[1][j])==clRef) {
+				if (mainClients[j] && mainClientCopied) {
+					continue;
+				}else if (Integer.parseInt(localTable[1][j])==clRef) {
 					if (toCopyCtRef[j] && toCopyClRef[clRef]) {
-						//TODO: write line to csv file
 						System.out.print("Writing client "+j+" to DB...");
 						insert.insertRow(toTable, "`ct_ref`, `cl_ref`, `ct_prenom`, `ct_nom`, `ct_mail`", "'"+j+"', '"+clRef+"', '"
 						+localTable[2][j].replaceAll("'", "\\\\'")
