@@ -50,6 +50,9 @@ public class TreatmentCommands extends DataAccess {
 		String[] lastNames = select.selectStringFromWhere("ct_nom", fromTable, null);
 		String[] emails = select.selectStringFromWhere("ct_mail", fromTable, null);
 		boolean[] treated = new boolean[12000];
+		int totalClientsCopied = 0;
+		int uniqueClRefs = 0;
+		int noEmailMissingClrefs = 0;
 		
 		String[][] localTable = new String[5][ctRefs.length];
 		localTable[0] = ctRefs;
@@ -67,70 +70,86 @@ public class TreatmentCommands extends DataAccess {
 			boolean[] toCopyCtRef = new boolean[120000];
 			boolean[] mainClients = new boolean[120000];
 			boolean mainClientCopied = false;
-			if (treated[clRef] == true || clRef == 10624) {
-				System.out.println("This client's enterprise ("+clRef+") has already been treated. Jumping to next client.");
-				continue;
+			boolean hasUniqueClRef = true;
+			if (treated[clRef] == true 
+					 || clRef == 1031 || clRef == 2044 || clRef == 5588 || clRef == 6670
+					 || clRef == 7030 || clRef == 7063 || clRef == 9852 || clRef == 10418
+					 || clRef == 10622 || clRef == 10624 || clRef == 10630 || clRef == 10631
+					 || clRef == 10632 || clRef == 11488 || clRef == 11665 || clRef == 11667) {
+//				System.out.println("This client's enterprise ("+clRef+") has already been treated or is excluded. Jumping to next client.");
+//				continue;
 			}else{
 				treated[clRef] = true;
-				System.out.println("Beginning treatment of enterprise "+clRef+" ...");
+//				System.out.println("Beginning treatment of enterprise "+clRef+" ...");
 			}
 			for (int j=0; j<ctRefs.length; j++) {
 				if (Integer.parseInt(localTable[1][j])==clRef) {
+					if (i!=j) {
+						hasUniqueClRef = false;
+					}
 					boolean hasName = false;
 					boolean hasEmail = false;
-					if ( !isEmpty(localTable, 2, j)  || !isEmpty(localTable, 3, j)) {
-						System.out.println("Client "+j+" has name.");
+					if ( !isEmpty(localTable, 2, j)  && !isEmpty(localTable, 3, j)) {
+//						System.out.println("Client "+j+" has name.");
 						hasName=true;
 					}
 					if (!isEmpty(localTable, 4, j)) {
-						System.out.println("Client "+j+" has email.");
+//						System.out.println("Client "+j+" has email.");
 						hasEmail=true;
 					}
 					if (hasName && hasEmail) {
-						System.out.println("This client can be used to form rules (main client).");
+//						System.out.println("This client can be used to form rules (main client).");
 						existsMainClient = true;
 						mainClients[j] = true;
 					}
 					if (!hasName && hasEmail) {
-						System.out.println("This client should have its name filled.");
+//						System.out.println("This client should have its name filled.");
 						existsNoNameClient = true;
 					}
 					if (hasName && !hasEmail) {
-						System.out.println("This client should have its email filled.");
+//						System.out.println("This client should have its email filled.");
 						existsNoEmailClient = true;
 					}
-					if (hasName || hasEmail) {
+					if ((hasName && !hasEmail) || (hasName && hasEmail)) {
 						toCopyCtRef[j] = true;
 					}
 				}
 			}
-			if (existsMainClient &&  existsNoEmailClient) {
+			if (existsMainClient && existsNoEmailClient) {
 				toCopyClRef[clRef] = true;
 			}
-			for (int j=0; j<ctRefs.length; j++) {
-				if (mainClients[j] && mainClientCopied) {
-					continue;
-				}else if (Integer.parseInt(localTable[1][j])==clRef) {
-					if (toCopyCtRef[j] && toCopyClRef[clRef]) {
-						System.out.print("Writing client "+j+" to DB...");
-						insert.insertRow(toTable, "`ct_ref`, `cl_ref`, `ct_prenom`, `ct_nom`, `ct_mail`", "'"+j+"', '"+clRef+"', '"
-						+localTable[2][j].replaceAll("'", "\\\\'")
-						+"', '"+localTable[3][j].replaceAll("'", "\\\\'")
-						+"', '"+localTable[4][j].replaceAll("'", "\\\\'")+"'");
-						System.out.println(" success.");
-					}
-				}
+			if (hasUniqueClRef) {
+//				uniqueClRefs++;
+//				modify.modifyWhere(fromTable, "ct_ref="+ctRefs[i], "unique_cl_ref", "1");
 			}
-			System.out.println("Treatment of this enterprise finished.");
-		}
-		
-		
-		
-//		for (int i=0; i<5; i++) {
+			if (!existsNoEmailClient) {
+				noEmailMissingClrefs++;
+//				modify.modifyWhere(fromTable, "cl_ref="+clRef, "no_email_missing", "1");
+			}
 //			for (int j=0; j<ctRefs.length; j++) {
-//				System.out.println(localTable[i][j]);
+//				if (mainClients[j] && mainClientCopied) {
+//					continue;
+//				}else if (Integer.parseInt(localTable[1][j])==clRef) {
+//					if (toCopyCtRef[j] && toCopyClRef[clRef]) {
+//						if (mainClients[j]) {
+//							mainClientCopied = true;
+//						}
+////						System.out.print("Writing client "+j+" to DB...");
+////						insert.insertRow(toTable, "`ct_ref`, `cl_ref`, `ct_prenom`, `ct_nom`, `ct_mail`", "'"+j+"', '"+clRef+"', '"
+////						+localTable[2][j].replaceAll("'", "\\\\'")
+////						+"', '"+localTable[3][j].replaceAll("'", "\\\\'")
+////						+"', '"+localTable[4][j].replaceAll("'", "\\\\'")+"'");
+////						System.out.println(" success.");
+//						totalClientsCopied++;
+//					}
+//				}
 //			}
-//		}
+//			System.out.println("Treatment of this enterprise finished.");
+		}
+		System.out.println("Total number of records copied : "+totalClientsCopied);
+		System.out.println("Total number of records in "+toTable+" : "+counter.countAll(toTable));
+		System.out.println("Total companies in "+fromTable+" with only one record : "+uniqueClRefs);
+		System.out.println("Total companies in "+fromTable+" with no email missing : "+noEmailMissingClrefs);
 		
 	}
 	
@@ -148,7 +167,7 @@ public class TreatmentCommands extends DataAccess {
 				localTable[i][j].equals("REMPLACE MME SUINOT EN MALADIE") || localTable[i][j].equals("01 47 68 12 63") || localTable[i][j].equals("661261090") || localTable[i][j].equals("b") || 
 				localTable[i][j].equals("603707107") || localTable[i][j].equals("pas d'adresse e-mail") || localTable[i][j].equals("630108886") || localTable[i][j].equals("pas adresse") || 
 				localTable[i][j].equals("aucune") || localTable[i][j].equals("664998228") || localTable[i][j].equals("pas de mail") || localTable[i][j].equals("pas d'e-mail") || 
-				localTable[i][j].equals("pas d'adresse") || localTable[i][j].equals("ne veut pas communiquer")) {
+				localTable[i][j].equals("pas d'adresse") || localTable[i][j].equals("ne veut pas communiquer") || localTable[i][j].equals("xx")) {
 			return true;
 		}
 		return false;
@@ -770,7 +789,7 @@ public class TreatmentCommands extends DataAccess {
 	public void countDistinct(String table, String column) {
 		Counter counter = new Counter();
 		int distinctValues = counter.countDistinct(column, table, null);
-		System.out.println("Dinstinct values in column "+column+" of table "+table+" : "+distinctValues);
+		System.out.println("Distinct values in column "+column+" of table "+table+" : "+distinctValues);
 	}
 
 	/**
